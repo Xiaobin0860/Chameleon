@@ -14,7 +14,7 @@
 
 > End-of-life
 > 
-> 06/22 Update: As the code structure is not suitable for future development, this version of Chameleon will no longer be updated.<br>
+> 06/22 Update: As the code structure is not suitable for future development, there will be no major updates.<br>
 > 10/30 Update: Added Linux build version, fixed some errors, performance improvement.
 
 ## Terms of use
