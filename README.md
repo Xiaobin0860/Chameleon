@@ -6,18 +6,15 @@
 
 > This distribution of Chameleon consists of the following files:
 > 
->   * README.md, the file you are currently reading.
-> 
->   * LICENSE, a text file containing the GNU General Public License version 3.
-> 
->   * src, a directory containing the full source code.
+>   * README.md, the file you are currently reading.<br>
+>   * LICENSE, a text file containing the GNU General Public License version 3.<br>
+>   * src, a directory containing the full source code.<br>
 
 ## Current Status
 
 > End-of-life
 > 
-> 06/22 Update: As the code structure is not suitable for future development, this version of Chameleon will no longer be updated.
-> 
+> 06/22 Update: As the code structure is not suitable for future development, this version of Chameleon will no longer be updated.<br>
 > 10/30 Update: Added Linux build version, fixed some errors, performance improvement.
 
 ## Terms of use
