@@ -258,7 +258,7 @@ namespace
 		for (int dir = 0; dir < 4; ++dir)
 		{
 			int to = (int)sq + (int)Step[dir];
-			if (is_ok(to) && distance(Square(sq), Square(to)) < 3 && square_same_color(Square(sq), Square(to)) && bishop_in_city(Square(to)) && bishop_in_city(Square(sq))) {	 //在棋盘上，且没有发生回绕
+			if (is_ok(to) && distance(Square(sq), Square(to)) < 3 && square_same_color(Square(sq), Square(to)) && bishop_in_city(Square(to)) && bishop_in_city(Square(sq))) {	 //鍦ㄦ鐩樹笂锛屼笖娌℃湁鍙戠敓鍥炵粫
 				int bishopeye = int(sq) + int(EyeDeltas[dir]);
 				if (is_ok(bishopeye) && distance(Square(sq), Square(bishopeye)) == 1 && square_same_color(Square(sq), Square(to)))
 				{
@@ -282,16 +282,16 @@ const std::string Bitboards::pretty(Bitboard b)
 
 	int shift[90] =
 	{
-			81, 82, 83, 84, 85, 86, 87, 88, 89,
-			72, 73, 74, 75, 76, 77, 78, 79, 80,
-			63, 64, 65, 66, 67, 68, 69, 70, 71,
-			54, 55, 56, 57, 58, 59, 60, 61, 62,
-			45, 46, 47, 48, 49, 50, 51, 52, 53,
-			36, 37, 38, 39, 40, 41, 42, 43, 44,
-			27, 28, 29, 30, 31, 32, 33, 34, 35,
-			18, 19, 20, 21, 22, 23, 24, 25, 26,
-			9,  10, 11, 12, 13, 14, 15, 16, 17,
-			0,  1,  2,  3,  4,  5,  6,  7,  8,
+		81, 82, 83, 84, 85, 86, 87, 88, 89,
+		72, 73, 74, 75, 76, 77, 78, 79, 80,
+		63, 64, 65, 66, 67, 68, 69, 70, 71,
+		54, 55, 56, 57, 58, 59, 60, 61, 62,
+		45, 46, 47, 48, 49, 50, 51, 52, 53,
+		36, 37, 38, 39, 40, 41, 42, 43, 44,
+		27, 28, 29, 30, 31, 32, 33, 34, 35,
+		18, 19, 20, 21, 22, 23, 24, 25, 26,
+		9,  10, 11, 12, 13, 14, 15, 16, 17,
+		0,  1,  2,  3,  4,  5,  6,  7,  8,
 	};
 
 	for (int i = 0; i < 90; ++i)
@@ -373,12 +373,8 @@ void Bitboards::init()
 		for (Square s = SQ_A0; s <= SQ_I9; ++s)
 		{
 			ForwardBB[c][s] = InFrontBB[c][rank_of(s)] & FileBB[file_of(s)];
-			// PawnAttackSpan[c][s] = InFrontBB[c][rank_of(s)] & AdjacentFilesBB[file_of(s)];
-			// PassedPawnMask[c][s] = ForwardBB[c][s] | PawnAttackSpan[c][s];
-
-			PawnAttackSpan[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PawnMask[c];  //?
-
-			PassedPawnMask[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PassedRiverBB[c];//?
+			PawnAttackSpan[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PawnMask[c];
+			PassedPawnMask[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PassedRiverBB[c];
 		}
 	}
 
@@ -424,7 +420,7 @@ void Bitboards::init()
 	}
 
 	Square KnightEyeDeltas[4] = { DELTA_NW, DELTA_NE, DELTA_SE, DELTA_SW };
-	// Square KnightStepFrom[4][2] = { { DELTA_WWN,DELTA_NNW },{ DELTA_NNE,DELTA_EEN },{ DELTA_EES,DELTA_SSE },{ DELTA_SSW, DELTA_WWS } };
+	
 	for (Square s = SQ_A0; s <= SQ_I9; ++s)
 	{
 		for (int i = 0; i < 4; ++i)
@@ -436,7 +432,7 @@ void Bitboards::init()
 	}
 
 	Square BishopEyeDeltas[4] = { DELTA_NW, DELTA_NE, DELTA_SE, DELTA_SW };
-	// Square BishopStepDeltas[4] = { DELTA_NNWW, DELTA_NNEE, DELTA_SSEE, DELTA_SSWW };
+	
 	for (Square s = SQ_A0; s <= SQ_I9; ++s)
 	{
 		BishopEye[s] = Bitboard();
@@ -449,6 +445,7 @@ void Bitboards::init()
 	}
 
 	Square AdvisorDetas[4] = { DELTA_NW, DELTA_NE, DELTA_SE, DELTA_SW };
+	
 	for (Square s = SQ_A0; s <= SQ_I9; ++s)
 	{
 		AdvisorAttack[s] = Bitboard();
@@ -461,6 +458,7 @@ void Bitboards::init()
 	}
 
 	Square PawnDetas[COLOR_NB][3] = { { DELTA_N,DELTA_W, DELTA_E },{ DELTA_S,DELTA_E,DELTA_W } };
+	
 	for (Color c = WHITE; c < COLOR_NB; ++c)
 	{
 		for (Square s = SQ_A0; s <= SQ_I9; ++s)
@@ -491,6 +489,7 @@ void Bitboards::init()
 	}
 
 	Square KingDetas[4] = { DELTA_N, DELTA_E, DELTA_S,DELTA_W };
+	
 	for (Square s = SQ_A0; s <= SQ_I9; ++s)
 	{
 		KingAttack[s] = Bitboard();
