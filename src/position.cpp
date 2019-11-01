@@ -242,7 +242,7 @@ void Position::set(const string& fenStr, bool isChess960, Thread* th)
 
 	char col, row, token;
 	size_t p;
-	Square sq = SQ_A9;//last rank,from left to right
+	Square sq = SQ_A9;
 
 	std::istringstream ss(fenStr);
 
@@ -530,7 +530,7 @@ bool Position::legal(Move m, Bitboard pinned) const
 {
 	assert(is_ok(m));
 	assert(pinned == pinned_pieces(sideToMove));
-	return move_is_legal((*this), m);	// Ok, but a bit sollow
+	return move_is_legal((*this), m);	// Ok, but a bit slow
 #if 0
 	Color us = sideToMove;
 	Square from = from_sq(m);
@@ -556,7 +556,8 @@ bool Position::legal(Move m, Bitboard pinned) const
 	// A non-king move is legal if and only if it is not pinned or it
 	// is moving along the ray towards or away from the king.
 
-	if (!pinned || !(pinned & from))	return true;
+	if (!pinned || !(pinned & from))
+		return true;
 
 	return move_is_legal((*this), m);
 #endif
@@ -638,6 +639,7 @@ bool Position::gives_check(Move m, const CheckInfo& ci) const
 		return true;
 	else if (pt == CANNON && /*RookAttackMask[from] & */RookAttackMask[to] & ci.ksq)
 		return true;
+	
 	// This function simply determines that check may occur,
 	// which is not very accurate. If it is accurate, the cost will be high
 	return false;
@@ -962,7 +964,7 @@ int Position::is_repeat()const
 		if (oppcheck && !stme->checkersBB) oppcheck = false;
 		if (mecheck && !stopp->checkersBB)  mecheck = false;
 
-		if (stp->key == st->key)  //repetition
+		if (stp->key == st->key)  // Repetition
 		{
 			checktime++;
 
