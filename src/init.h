@@ -316,7 +316,6 @@ inline unsigned slider_magic_index(Square s, const Bitboard& occ)
 	bb[0] = occ.bb[0] & Masks[s].bb[0];
 	bb[1] = occ.bb[1] & Masks[s].bb[1];
 
-	//very important, must << 18,
 	return  (((bb[0] * Magics[s].bb[0]) << 18) ^ ((bb[1] * Magics[s].bb[1])) << 18) >> Shifts[s];
 }
 
@@ -327,6 +326,7 @@ inline unsigned block_magic_index(Square s, const Bitboard& occ)
 	uint64_t* const Magics = Bt == KNIGHT_LEG ? KnightLegMagic : Bt == KNIGHT_EYE ? KnightEyeMagic : BishopEyeMagic;
 
 	Bitboard t = Masks[s] & occ;
+	
 	return ((t.bb[0] << 18 ^ t.bb[1] << 18)*Magics[s]) >> 60;
 }
 
@@ -364,14 +364,14 @@ inline Bitboard attacks_bb(Piece pc, Square s, const Bitboard& occupied)
 {
 	switch (type_of(pc))
 	{
-	case ROOK: return rook_attacks_bb(s, occupied);
-	case CANNON: return cannon_attacks_bb(s, occupied);
-	case KNIGHT: return knight_leg_attacks_bb(s, occupied);
-	case BISHOP: return bishop_attacks_bb(s, occupied);
-	case ADVISOR: return AdvisorAttack[s];
-	case PAWN:   return PawnAttackFrom[color_of(pc)][s];
-	case KING:   return KingAttack[s];
-	default:    return Bitboard();
+		case ROOK:	return rook_attacks_bb(s, occupied);
+		case CANNON:	return cannon_attacks_bb(s, occupied);
+		case KNIGHT:	return knight_leg_attacks_bb(s, occupied);
+		case BISHOP:	return bishop_attacks_bb(s, occupied);
+		case ADVISOR:	return AdvisorAttack[s];
+		case PAWN:	return PawnAttackFrom[color_of(pc)][s];
+		case KING:	return KingAttack[s];
+		default:	return Bitboard();
 	}
 }
 
@@ -383,6 +383,7 @@ inline Square lsb(uint64_t b)
 	unsigned long idx;
 
 	_BitScanForward64(&idx, b);
+	
 	return (Square)idx;
 }
 
@@ -390,12 +391,16 @@ inline Square lsb(Bitboard b)
 {
 	unsigned long idx;
 
-	if (b.bb[0]) _BitScanForward64(&idx, b.bb[0]);
+	if (b.bb[0])
+	{
+		_BitScanForward64(&idx, b.bb[0]);
+	}
 	else if (b.bb[1])
 	{
 		_BitScanForward64(&idx, b.bb[1]);
 		idx += 45;
 	}
+	
 	return (Square)idx;
 }
 
@@ -404,6 +409,7 @@ inline Square msb(uint64_t b)
 	unsigned long idx;
 
 	_BitScanReverse64(&idx, b);
+	
 	return (Square)idx;
 }
 
@@ -416,7 +422,11 @@ inline Square msb(Bitboard b)
 		_BitScanReverse64(&idx, b.bb[1]);
 		idx += 45;
 	}
-	else if (b.bb[0])	 _BitScanReverse64(&idx, b.bb[0]);
+	else if (b.bb[0])
+	{
+		_BitScanReverse64(&idx, b.bb[0]);
+	}
+	
 	return (Square)idx;
 }
 
@@ -427,22 +437,26 @@ Square msb(Bitboard b);
 
 #  else // Assumed gcc or compatible compiler
 
-inline Square lsb(uint64_t b) {
+inline Square lsb(uint64_t b)
+{
 	return Square(__builtin_ctzll(b));
 }
 
-inline Square msb(uint64_t b) {
+inline Square msb(uint64_t b)
+{
 	return Square(63 ^ __builtin_clzll(b));
 }
 
-inline Square lsb(Bitboard b) { // Assembly code by Heinz van Saanen
-	//Bitboard idx;
+inline Square lsb(Bitboard b)
+{
 	unsigned long idx;
 
-	if (b.bb[0]) { idx = __builtin_ctzll(b.bb[0]); }
+	if (b.bb[0]) // Assembly code by Heinz van Saanen
+	{
+		idx = __builtin_ctzll(b.bb[0]);
+	}
 	else if (b.bb[1])
 	{
-
 		idx = __builtin_ctzll(b.bb[1]);
 		idx += 45;
 	}
@@ -452,17 +466,17 @@ inline Square lsb(Bitboard b) { // Assembly code by Heinz van Saanen
 
 inline Square msb(Bitboard b)
 {
-
-	//Bitboard idx;
 	unsigned long idx;
 
 	if (b.bb[1])
 	{
-
 		idx = 127 ^ __builtin_clzll(b.bb[1]);
 		idx += 45;
 	}
-	else if (b.bb[0]) { idx = 127 ^ __builtin_clzll(b.bb[0]); }
+	else if (b.bb[0])
+	{
+		idx = 127 ^ __builtin_clzll(b.bb[0]);
+	}
 
 	return (Square)idx;
 }
@@ -474,7 +488,9 @@ inline Square msb(Bitboard b)
 inline Square pop_lsb(Bitboard* b)
 {
 	const Square s = lsb(*b);
+	
 	b->pop_lsb();
+	
 	return s;
 }
 
