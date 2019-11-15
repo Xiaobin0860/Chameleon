@@ -49,39 +49,39 @@ Search::StateStackPtr SetupStates;
 
 void position(Position& pos, istringstream& is)
 {
-	Move m;
-	string token, fen;
+  Move m;
+  string token, fen;
 
-	is >> token;
+  is >> token;
 
-	if (token == "startpos")
-	{
-		fen = StartFEN;
-		is >> token; // Consume "moves" token if any
-	}
-	else if (token == "fen")
-		while (is >> token && token != "moves")
-			fen += token + " ";
+  if (token == "startpos")
+  {
+    fen = StartFEN;
+    is >> token; // Consume "moves" token if any
+  }
+  else if (token == "fen")
+    while (is >> token && token != "moves")
+      fen += token + " ";
 
-	else
-	{
-		while (token != "moves")
-		{
-			fen += token + " ";
-			if (!(is >> token))
-				break;
-		}
-	}
+  else
+  {
+    while (token != "moves")
+    {
+      fen += token + " ";
+      if (!(is >> token))
+        break;
+    }
+  }
 
-	pos.set(fen, false, Threads.main());
-	SetupStates = Search::StateStackPtr(new std::stack<StateInfo>);
+  pos.set(fen, false, Threads.main());
+  SetupStates = Search::StateStackPtr(new std::stack<StateInfo>);
 
-	// Parse move list (if any)
-	while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE)
-	{
-		SetupStates->push(StateInfo());
-		pos.do_move(m, SetupStates->top(), pos.gives_check(m, CheckInfo(pos)));
-	}
+  // Parse move list (if any)
+  while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE)
+  {
+    SetupStates->push(StateInfo());
+    pos.do_move(m, SetupStates->top(), pos.gives_check(m, CheckInfo(pos)));
+  }
 }
 
 /// setoption() is called when engine receives the "setoption" UCI command. The
@@ -89,22 +89,22 @@ void position(Position& pos, istringstream& is)
 
 void setoption(istringstream& is)
 {
-	string token, name, value;
+  string token, name, value;
 
-	is >> token; // Consume "name" token
+  is >> token; // Consume "name" token
 
-	// Read option name (can contain spaces)
-	while (is >> token && token != "value")
-		name += string(" ", name.empty() ? 0 : 1) + token;
+  // Read option name (can contain spaces)
+  while (is >> token && token != "value")
+    name += string(" ", name.empty() ? 0 : 1) + token;
 
-	// Read option value (can contain spaces)
-	while (is >> token)
-		value += string(" ", value.empty() ? 0 : 1) + token;
+  // Read option value (can contain spaces)
+  while (is >> token)
+    value += string(" ", value.empty() ? 0 : 1) + token;
 
-	if (Options.count(name))
-		Options[name] = value;
-	else
-		sync_cout << "No such option: " << name << sync_endl;
+  if (Options.count(name))
+    Options[name] = value;
+  else
+    sync_cout << "No such option: " << name << sync_endl;
 }
 
 /// go() is called when engine receives the "go" UCI command. The function sets
@@ -113,28 +113,28 @@ void setoption(istringstream& is)
 
 void go(const Position& pos, istringstream& is)
 {
-	Search::LimitsType limits;
-	string token;
+  Search::LimitsType limits;
+  string token;
 
-	limits.startTime = now(); // As early as possible!
+  limits.startTime = now(); // As early as possible!
 
-	while (is >> token)
-		if (token == "searchmoves")
-			while (is >> token)
-				limits.searchmoves.push_back(UCI::to_move(pos, token));
-		else if (token == "wtime")     is >> limits.time[WHITE];
-		else if (token == "btime")     is >> limits.time[BLACK];
-		else if (token == "winc")      is >> limits.inc[WHITE];
-		else if (token == "binc")      is >> limits.inc[BLACK];
-		else if (token == "movestogo") is >> limits.movestogo;
-		else if (token == "depth")     is >> limits.depth;
-		else if (token == "nodes")     is >> limits.nodes;
-		else if (token == "movetime")  is >> limits.movetime;
-		else if (token == "mate")      is >> limits.mate;
-		else if (token == "infinite")  limits.infinite = 1;
-		else if (token == "ponder")    limits.ponder = 1;
+  while (is >> token)
+    if (token == "searchmoves")
+      while (is >> token)
+        limits.searchmoves.push_back(UCI::to_move(pos, token));
+    else if (token == "wtime")     is >> limits.time[WHITE];
+    else if (token == "btime")     is >> limits.time[BLACK];
+    else if (token == "winc")      is >> limits.inc[WHITE];
+    else if (token == "binc")      is >> limits.inc[BLACK];
+    else if (token == "movestogo") is >> limits.movestogo;
+    else if (token == "depth")     is >> limits.depth;
+    else if (token == "nodes")     is >> limits.nodes;
+    else if (token == "movetime")  is >> limits.movetime;
+    else if (token == "mate")      is >> limits.mate;
+    else if (token == "infinite")  limits.infinite = 1;
+    else if (token == "ponder")    limits.ponder = 1;
 
-		Threads.start_thinking(pos, limits, SetupStates);
+    Threads.start_thinking(pos, limits, SetupStates);
 }
 
 /// UCI::loop() waits for a command from stdin, parses it and calls the appropriate
@@ -145,61 +145,61 @@ void go(const Position& pos, istringstream& is)
 
 void UCI::loop(int argc, char* argv[])
 {
-	string token, cmd;
-	Position pos(StartFEN, false, Threads.main()); // The root position
+  string token, cmd;
+  Position pos(StartFEN, false, Threads.main()); // The root position
 
-	for (int i = 1; i < argc; i++)
-		cmd += std::string(argv[i]) + " ";
+  for (int i = 1; i < argc; i++)
+    cmd += std::string(argv[i]) + " ";
 
-	do
-	{
-		if (argc == 1 && !getline(cin, cmd)) // Block here waiting for input or EOF
-			cmd = "quit";
+  do
+  {
+    if (argc == 1 && !getline(cin, cmd)) // Block here waiting for input or EOF
+      cmd = "quit";
 
-		istringstream is(cmd);
+    istringstream is(cmd);
 
-		token.clear(); // getline() could return empty or blank line
-		is >> skipws >> token;
+    token.clear(); // getline() could return empty or blank line
+    is >> skipws >> token;
 
-		// The GUI sends 'ponderhit' to tell us to ponder on the same move the
-		// opponent has played. In case Signals.stopOnPonderhit is set we are
-		// waiting for 'ponderhit' to stop the search (for instance because we
-		// already ran out of time), otherwise we should continue searching but
-		// switching from pondering to normal search.
-		if (token == "quit"
-			|| token == "stop"
-			|| (token == "ponderhit" && Search::Signals.stopOnPonderhit))
-		{
-			Search::Signals.stop = true;
-			Threads.main()->start_searching(true); // Could be sleeping
-		}
-		else if (token == "ponderhit")
-			Search::Limits.ponder = 0; // Switch to normal search
+    // The GUI sends 'ponderhit' to tell us to ponder on the same move the
+    // opponent has played. In case Signals.stopOnPonderhit is set we are
+    // waiting for 'ponderhit' to stop the search (for instance because we
+    // already ran out of time), otherwise we should continue searching but
+    // switching from pondering to normal search.
+    if (token == "quit"
+      || token == "stop"
+      || (token == "ponderhit" && Search::Signals.stopOnPonderhit))
+    {
+      Search::Signals.stop = true;
+      Threads.main()->start_searching(true); // Could be sleeping
+    }
+    else if (token == "ponderhit")
+      Search::Limits.ponder = 0; // Switch to normal search
 
-		else if (token == "uci")
-			sync_cout << engine_info(true)
-			<< Options
-			<< "\nuciok" << sync_endl;
+    else if (token == "uci")
+      sync_cout << engine_info(true)
+      << Options
+      << "\nuciok" << sync_endl;
 
-		else if (token == "ucinewgame")
-		{
-			Search::clear();
-			Time.availableNodes = 0;
-		}
-		else if (token == "isready")    sync_cout << "readyok" << sync_endl;
-		else if (token == "go")         go(pos, is);
-		else if (token == "position" || token == "fen")   position(pos, is);
-		else if (token == "setoption")  setoption(is);
+    else if (token == "ucinewgame")
+    {
+      Search::clear();
+      Time.availableNodes = 0;
+    }
+    else if (token == "isready")    sync_cout << "readyok" << sync_endl;
+    else if (token == "go")         go(pos, is);
+    else if (token == "position" || token == "fen")   position(pos, is);
+    else if (token == "setoption")  setoption(is);
 
-		// Additional custom non-UCI commands, useful for debugging
-		else if (token == "flip")       pos.flip();
-		else if (token == "d")          sync_cout << pos << sync_endl;
-		else
-			sync_cout << "Unknown command: " << cmd << sync_endl;
+    // Additional custom non-UCI commands, useful for debugging
+    else if (token == "flip")       pos.flip();
+    else if (token == "d")          sync_cout << pos << sync_endl;
+    else
+      sync_cout << "Unknown command: " << cmd << sync_endl;
 
-	} while (token != "quit" && argc == 1); // Passed args have one-shot behaviour
+  } while (token != "quit" && argc == 1); // Passed args have one-shot behaviour
 
-	Threads.main()->wait_for_search_finished();
+  Threads.main()->wait_for_search_finished();
 }
 
 /// UCI::value() converts a Value to a string suitable for use with the UCI
@@ -211,21 +211,21 @@ void UCI::loop(int argc, char* argv[])
 
 string UCI::value(Value v)
 {
-	stringstream ss;
+  stringstream ss;
 
-	if (abs(v) < VALUE_MATE - MAX_PLY)
-		ss << v;
-	else
-		ss << "mate " << (v > 0 ? VALUE_MATE - v + 1 : -VALUE_MATE - v) / 2;
+  if (abs(v) < VALUE_MATE - MAX_PLY)
+    ss << v;
+  else
+    ss << "mate " << (v > 0 ? VALUE_MATE - v + 1 : -VALUE_MATE - v) / 2;
 
-	return ss.str();
+  return ss.str();
 }
 
 /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
 
 std::string UCI::square(Square s)
 {
-	return std::string{ char('a' + file_of(s)), char('0' + rank_of(s)) };
+  return std::string{ char('a' + file_of(s)), char('0' + rank_of(s)) };
 }
 
 /// UCI::move() converts a Move to a string in coordinate notation (g1f3, a7a8q).
@@ -235,18 +235,18 @@ std::string UCI::square(Square s)
 
 string UCI::move(Move m, bool chess960)
 {
-	Square from = from_sq(m);
-	Square to = to_sq(m);
+  Square from = from_sq(m);
+  Square to = to_sq(m);
 
-	if (m == MOVE_NONE)
-		return "(none)";
+  if (m == MOVE_NONE)
+    return "(none)";
 
-	if (m == MOVE_NULL)
-		return "0000";
+  if (m == MOVE_NULL)
+    return "0000";
 
-	string move = UCI::square(from) + UCI::square(to);
+  string move = UCI::square(from) + UCI::square(to);
 
-	return move;
+  return move;
 }
 
 /// UCI::to_move() converts a string representing a move in coordinate notation
@@ -254,12 +254,12 @@ string UCI::move(Move m, bool chess960)
 
 Move UCI::to_move(const Position& pos, string& str)
 {
-	if (str.length() == 5) // Junior could send promotion piece in uppercase
-		str[4] = char(tolower(str[4]));
+  if (str.length() == 5) // Junior could send promotion piece in uppercase
+    str[4] = char(tolower(str[4]));
 
-	for (const auto& m : MoveList<LEGAL>(pos))
-		if (str == UCI::move(m, false))
-			return m;
+  for (const auto& m : MoveList<LEGAL>(pos))
+    if (str == UCI::move(m, false))
+      return m;
 
-	return MOVE_NONE;
+  return MOVE_NONE;
 }

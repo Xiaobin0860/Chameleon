@@ -42,42 +42,42 @@
 // changing the entry under our feet.
 class Thread
 {
-	std::thread nativeThread;
-	std::mutex mutex;
-	std::condition_variable sleepCondition;
-	bool exit, searching;
+  std::thread nativeThread;
+  std::mutex mutex;
+  std::condition_variable sleepCondition;
+  bool exit, searching;
 
 public:
-	Thread();
-	virtual ~Thread();
-	virtual void search();
-	void idle_loop();
-	void start_searching(bool resume = false);
-	void wait_for_search_finished();
-	void wait(std::atomic_bool& b);
+  Thread();
+  virtual ~Thread();
+  virtual void search();
+  void idle_loop();
+  void start_searching(bool resume = false);
+  void wait_for_search_finished();
+  void wait(std::atomic_bool& b);
 
-	Pawns::Table pawnsTable;
-	Material::Table materialTable;
-	Endgames endgames;
-	size_t idx, PVIdx;
-	int maxPly, callsCnt;
+  Pawns::Table pawnsTable;
+  Material::Table materialTable;
+  Endgames endgames;
+  size_t idx, PVIdx;
+  int maxPly, callsCnt;
 
-	Position rootPos;
-	Search::RootMoveVector rootMoves;
-	Depth rootDepth;
-	HistoryStats history;
-	MovesStats counterMoves;
-	Depth completedDepth;
-	std::atomic_bool resetCalls;
+  Position rootPos;
+  Search::RootMoveVector rootMoves;
+  Depth rootDepth;
+  HistoryStats history;
+  MovesStats counterMoves;
+  Depth completedDepth;
+  std::atomic_bool resetCalls;
 };
 
 // MainThread is a derived class with a specific overload for the main thread
 struct MainThread : public Thread
 {
-	void search();
+  void search();
 
-	bool easyMovePlayed, failedLow;
-	double bestMoveChanges;
+  bool easyMovePlayed, failedLow;
+  double bestMoveChanges;
 };
 
 // ThreadPool struct handles all the threads related stuff like init, starting,
@@ -85,14 +85,15 @@ struct MainThread : public Thread
 // data is done through this class.
 struct ThreadPool : public std::vector<Thread*>
 {
-	void init(); // No constructor and destructor, threads rely on globals that should
-	void exit(); // be initialized and valid during the whole thread lifetime.
+  void init(); // No constructor and destructor, threads rely on globals that should
+  void exit(); // be initialized and valid during the whole thread lifetime.
 
-	MainThread* main() { return static_cast<MainThread*>(at(0)); }
-	void start_thinking(const Position&, const Search::LimitsType&, Search::StateStackPtr&);
-	void read_uci_options();
-	int64_t nodes_searched();
+  MainThread* main() { return static_cast<MainThread*>(at(0)); }
+  void start_thinking(const Position&, const Search::LimitsType&, Search::StateStackPtr&);
+  void read_uci_options();
+  int64_t nodes_searched();
 };
 
 extern ThreadPool Threads;
+
 #endif // #ifndef THREAD_H_INCLUDED

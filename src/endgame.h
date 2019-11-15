@@ -35,32 +35,32 @@
 // EndgameType lists all supported endgames
 enum EndgameType
 {
-	// Evaluation functions
-	KNNK,  // KNN vs K
-	KXK,   // Generic "mate lone king" eval
-	KBNK,  // KBN vs K
-	KPK,   // KP vs K
-	KRKP,  // KR vs KP
-	KRKB,  // KR vs KB
-	KRKN,  // KR vs KN
-	KQKP,  // KQ vs KP
-	KQKR,  // KQ vs KR
+  // Evaluation functions
+  KNNK,  // KNN vs K
+  KXK,   // Generic "mate lone king" eval
+  KBNK,  // KBN vs K
+  KPK,   // KP vs K
+  KRKP,  // KR vs KP
+  KRKB,  // KR vs KB
+  KRKN,  // KR vs KN
+  KQKP,  // KQ vs KP
+  KQKR,  // KQ vs KR
 
-	// Scaling functions
-	SCALING_FUNCTIONS,
+  // Scaling functions
+  SCALING_FUNCTIONS,
 
-	KBPsK,   // KB and pawns vs K
-	KQKRPs,  // KQ vs KR and pawns
-	KRPKR,   // KRP vs KR
-	KRPKB,   // KRP vs KB
-	KRPPKRP, // KRPP vs KRP
-	KPsK,    // K and pawns vs K
-	KBPKB,   // KBP vs KB
-	KBPPKB,  // KBPP vs KB
-	KBPKN,   // KBP vs KN
-	KNPK,    // KNP vs K
-	KNPKB,   // KNP vs KB
-	KPKP     // KP vs KP
+  KBPsK,   // KB and pawns vs K
+  KQKRPs,  // KQ vs KR and pawns
+  KRPKR,   // KRP vs KR
+  KRPKB,   // KRP vs KB
+  KRPPKRP, // KRPP vs KRP
+  KPsK,    // K and pawns vs K
+  KBPKB,   // KBP vs KB
+  KBPPKB,  // KBPP vs KB
+  KBPKN,   // KBP vs KN
+  KNPK,    // KNP vs K
+  KNPKB,   // KNP vs KB
+  KPKP     // KP vs KP
 };
 
 // Endgame functions can be of two types depending on whether they return a
@@ -72,18 +72,18 @@ eg_type = typename std::conditional<(E < SCALING_FUNCTIONS), Value, ScaleFactor>
 template<typename T>
 struct EndgameBase
 {
-	virtual ~EndgameBase() = default;
-	virtual Color strong_side() const = 0;
-	virtual T operator()(const Position&) const = 0;
+  virtual ~EndgameBase() = default;
+  virtual Color strong_side() const = 0;
+  virtual T operator()(const Position&) const = 0;
 };
 
 template<EndgameType E, typename T = eg_type<E>>
 struct Endgame : public EndgameBase<T>
 {
-	explicit Endgame(Color c) : strongSide(c), weakSide(~c) {}
-	Color strong_side() const { return strongSide; }
+  explicit Endgame(Color c) : strongSide(c), weakSide(~c) {}
+  Color strong_side() const { return strongSide; }
 private:
-	Color strongSide, weakSide;
+  Color strongSide, weakSide;
 };
 
 // The Endgames class stores the pointers to endgame evaluation and scaling
@@ -92,15 +92,15 @@ private:
 class Endgames
 {
 private:
-	template<typename T>
-	using Map = std::map<uint64_t, std::unique_ptr<EndgameBase<T>>>;
-	template<typename T>
-	Map<T>& map() { return std::get<std::is_same<T, ScaleFactor>::value>(maps); }
+  template<typename T>
+  using Map = std::map<uint64_t, std::unique_ptr<EndgameBase<T>>>;
+  template<typename T>
+  Map<T>& map() { return std::get<std::is_same<T, ScaleFactor>::value>(maps); }
 public:
-	template<typename T>
-	EndgameBase<T>* probe(uint64_t key){ return map<T>().count(key) ? map<T>()[key].get() : nullptr; }
+  template<typename T>
+  EndgameBase<T>* probe(uint64_t key){ return map<T>().count(key) ? map<T>()[key].get() : nullptr; }
 private:
-	std::pair<Map<Value>, Map<ScaleFactor>> maps;
+  std::pair<Map<Value>, Map<ScaleFactor>> maps;
 };
 
 #endif // #ifndef ENDGAME_H_INCLUDED

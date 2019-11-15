@@ -38,44 +38,44 @@
 class YunBook
 {
 public:
-	YunBook() { curl_global_init(CURL_GLOBAL_DEFAULT); };
-	~YunBook() { curl_global_cleanup(); };
-	Move probe(const Position& pos);
-	Score probe_score(const Position& pos);
-	std::vector<Move> probe_pv(const Position& pos, bool pickBest);
-	std::vector<Position *> probe_pv_pos(const Position& pos, bool pickBest);
+  YunBook() { curl_global_init(CURL_GLOBAL_DEFAULT); };
+  ~YunBook() { curl_global_cleanup(); };
+  Move probe(const Position& pos);
+  Score probe_score(const Position& pos);
+  std::vector<Move> probe_pv(const Position& pos, bool pickBest);
+  std::vector<Position *> probe_pv_pos(const Position& pos, bool pickBest);
 
 private:
-	bool query(const Position& pos, const std::string act);
-	static size_t cb(const char *d, size_t n, size_t l, void *p);
-	static void split(const std::string str, const std::string delim, std::vector<std::string> &ret);
+  bool query(const Position& pos, const std::string act);
+  static size_t cb(const char *d, size_t n, size_t l, void *p);
+  static void split(const std::string str, const std::string delim, std::vector<std::string> &ret);
 
-	CURL *curl;
-	CURLcode res;
+  CURL *curl;
+  CURLcode res;
 
-	const static std::string url;
-	const static std::string pick[];
-	static Depth depth;
-	static Score score;
-	static std::vector<std::string> moves;
+  const static std::string url;
+  const static std::string pick[];
+  static Depth depth;
+  static Score score;
+  static std::vector<std::string> moves;
 };
 #endif
 
 class PolyglotBook : private std::ifstream
 {
 public:
-	PolyglotBook() : rkiss(now()) {};
-	~PolyglotBook() { if (is_open()) close(); };
-	Move probe(const Position& pos, const std::string& fName, bool pickBest);
+  PolyglotBook() : rkiss(now()) {};
+  ~PolyglotBook() { if (is_open()) close(); };
+  Move probe(const Position& pos, const std::string& fName, bool pickBest);
 
 private:
-	template<typename T> PolyglotBook& operator>>(T& n);
+  template<typename T> PolyglotBook& operator>>(T& n);
 
-	bool open(const char* fName);
-	size_t find_first(uint64_t key);
+  bool open(const char* fName);
+  size_t find_first(uint64_t key);
 
-	RKISS rkiss;
-	std::string fileName;
+  RKISS rkiss;
+  std::string fileName;
 };
 
 #endif // #ifndef BOOK_H_INCLUDED

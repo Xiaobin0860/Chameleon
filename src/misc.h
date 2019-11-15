@@ -34,8 +34,8 @@
 
 enum SyncCout
 {
-	IO_LOCK,
-	IO_UNLOCK
+  IO_LOCK,
+  IO_UNLOCK
 };
 
 typedef std::chrono::milliseconds::rep TimePoint; // A value in milliseconds
@@ -50,22 +50,22 @@ const std::string engine_info(bool to_uci = false);
 
 inline TimePoint now()
 {
-	return std::chrono::duration_cast<std::chrono::milliseconds>
-		(std::chrono::steady_clock::now().time_since_epoch()).count();
+  return std::chrono::duration_cast<std::chrono::milliseconds>
+    (std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
 struct Log : public std::ofstream
 {
-	Log(const std::string& f = "log.txt") : std::ofstream(f.c_str(), std::ios::out | std::ios::app)	{}
-	~Log() { if (is_open()) close(); }
+  Log(const std::string& f = "log.txt") : std::ofstream(f.c_str(), std::ios::out | std::ios::app)  {}
+  ~Log() { if (is_open()) close(); }
 };
 
 template<class Entry, int Size>
 struct HashTable
 {
-	Entry* operator[](uint64_t key)	{ return &table[(uint32_t)key & (Size - 1)]; }
+  Entry* operator[](uint64_t key)  { return &table[(uint32_t)key & (Size - 1)]; }
 private:
-	std::vector<Entry> table = std::vector<Entry>(Size);
+  std::vector<Entry> table = std::vector<Entry>(Size);
 };
 
 std::ostream& operator<<(std::ostream&, SyncCout);
@@ -90,25 +90,25 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 
 class PRNG
 {
-	uint64_t s;
+  uint64_t s;
 
-	uint64_t rand64()
-	{
-		s ^= s >> 12, s ^= s << 25, s ^= s >> 27;
-		return s * 2685821657736338717LL;
-	}
+  uint64_t rand64()
+  {
+    s ^= s >> 12, s ^= s << 25, s ^= s >> 27;
+    return s * 2685821657736338717LL;
+  }
 
 public:
-	PRNG(uint64_t seed) : s(seed) { assert(seed); }
+  PRNG(uint64_t seed) : s(seed) { assert(seed); }
 
-	template<typename T> T rand() { return T(rand64()); }
+  template<typename T> T rand() { return T(rand64()); }
 
-	// Special generator used to fast init magic numbers.
-	// Output values only have 1/8th of their bits set on average.
-	template<typename T> T sparse_rand()
-	{
-		return T(rand64() & rand64() & rand64());
-	}
+  // Special generator used to fast init magic numbers.
+  // Output values only have 1/8th of their bits set on average.
+  template<typename T> T sparse_rand()
+  {
+    return T(rand64() & rand64() & rand64());
+  }
 };
 
 #endif // #ifndef MISC_H_INCLUDED

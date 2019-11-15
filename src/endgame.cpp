@@ -34,28 +34,28 @@ using std::string;
 // in KX vs K and KQ vs KR endgames.
 const int PushToEdges[SQUARE_NB] =
 {
-	  100, 90, 80, 70, 70, 80, 90, 100,
-	   90, 70, 60, 50, 50, 60, 70,  90,
-	   80, 60, 40, 30, 30, 40, 60,  80,
-	   70, 50, 30, 20, 20, 30, 50,  70,
-	   70, 50, 30, 20, 20, 30, 50,  70,
-	   80, 60, 40, 30, 30, 40, 60,  80,
-	   90, 70, 60, 50, 50, 60, 70,  90,
-	  100, 90, 80, 70, 70, 80, 90, 100
+    100, 90, 80, 70, 70, 80, 90, 100,
+     90, 70, 60, 50, 50, 60, 70,  90,
+     80, 60, 40, 30, 30, 40, 60,  80,
+     70, 50, 30, 20, 20, 30, 50,  70,
+     70, 50, 30, 20, 20, 30, 50,  70,
+     80, 60, 40, 30, 30, 40, 60,  80,
+     90, 70, 60, 50, 50, 60, 70,  90,
+    100, 90, 80, 70, 70, 80, 90, 100
 };
 
 // Table used to drive the king towards a corner square of the
 // right color in KBN vs K endgames.
 const int PushToCorners[SQUARE_NB] =
 {
-	  200, 190, 180, 170, 160, 150, 140, 130,
-	  190, 180, 170, 160, 150, 140, 130, 140,
-	  180, 170, 155, 140, 140, 125, 140, 150,
-	  170, 160, 140, 120, 110, 140, 150, 160,
-	  160, 150, 140, 110, 120, 140, 160, 170,
-	  150, 140, 125, 140, 140, 155, 170, 180,
-	  140, 130, 140, 150, 160, 170, 180, 190,
-	  130, 140, 150, 160, 170, 180, 190, 200
+    200, 190, 180, 170, 160, 150, 140, 130,
+    190, 180, 170, 160, 150, 140, 130, 140,
+    180, 170, 155, 140, 140, 125, 140, 150,
+    170, 160, 140, 120, 110, 140, 150, 160,
+    160, 150, 140, 110, 120, 140, 160, 170,
+    150, 140, 125, 140, 140, 155, 170, 180,
+    140, 130, 140, 150, 160, 170, 180, 190,
+    130, 140, 150, 160, 170, 180, 190, 200
 };
 
 // Tables used to drive a piece towards or away from another piece
@@ -68,7 +68,7 @@ const int KRPPKRPScaleFactors[RANK_NB] = { 0, 9, 10, 14, 21, 44, 0, 0 };
 #ifndef NDEBUG
 bool verify_material(const Position& pos, Color c, Value npm, int pawnsCnt)
 {
-	return pos.non_pawn_material(c) == npm && pos.count<PAWN>(c) == pawnsCnt;
+  return pos.non_pawn_material(c) == npm && pos.count<PAWN>(c) == pawnsCnt;
 }
 #endif
 
@@ -76,15 +76,15 @@ bool verify_material(const Position& pos, Color c, Value npm, int pawnsCnt)
 /// is on the left half of the board.
 Square normalize(const Position& pos, Color strongSide, Square sq)
 {
-	assert(pos.count<PAWN>(strongSide) == 1);
+  assert(pos.count<PAWN>(strongSide) == 1);
 
-	if (file_of(pos.square<PAWN>(strongSide)) >= FILE_E)
-		sq = Square(sq ^ 7); // Mirror SQ_H1 -> SQ_A1
+  if (file_of(pos.square<PAWN>(strongSide)) >= FILE_E)
+    sq = Square(sq ^ 7); // Mirror SQ_H1 -> SQ_A1
 
-	if (strongSide == BLACK)
-		sq = ~sq;
+  if (strongSide == BLACK)
+    sq = ~sq;
 
-	return sq;
+  return sq;
 }
 
 /// key() get the material key of Position out of the given endgame key code
@@ -93,16 +93,16 @@ Square normalize(const Position& pos, Color strongSide, Square sq)
 
 uint64_t key(const string& code, Color c)
 {
-	assert(code.length() > 0 && code.length() < 8);
-	assert(code[0] == 'K');
+  assert(code.length() > 0 && code.length() < 8);
+  assert(code[0] == 'K');
 
-	string sides[] = { code.substr(code.find('K', 1)),      // Weak
-					   code.substr(0, code.find('K', 1)) }; // Strong
+  string sides[] = { code.substr(code.find('K', 1)), // Weak
+             code.substr(0, code.find('K', 1)) }; // Strong
 
-	std::transform(sides[c].begin(), sides[c].end(), sides[c].begin(), tolower);
+  std::transform(sides[c].begin(), sides[c].end(), sides[c].begin(), tolower);
 
-	string fen = sides[0] + char(8 - sides[0].length() + '0') + "/8/8/8/8/8/8/"
-		+ sides[1] + char(8 - sides[1].length() + '0') + " w - - 0 10";
+  string fen = sides[0] + char(8 - sides[0].length() + '0') + "/8/8/8/8/8/8/"
+    + sides[1] + char(8 - sides[1].length() + '0') + " w - - 0 10";
 
-	return Position(fen, false, nullptr).material_key();
+  return Position(fen, false, nullptr).material_key();
 }

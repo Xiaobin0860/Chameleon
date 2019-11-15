@@ -40,13 +40,13 @@ static int64_t hits[2], means[2];
 
 const string engine_info(bool to_uci)
 {
-	stringstream s; // From compiler, format is "Sep 21 2008"
+  stringstream s; // From compiler, format is "Sep 21 2008"
 
-	if (to_uci)
-		s << "id name Chameleon" << "\n"
-		<< "id author Wilbert Lee" << "";
+  if (to_uci)
+    s << "id name Chameleon" << "\n"
+    << "id author Wilbert Lee" << "";
 
-	return s.str();
+  return s.str();
 }
 
 void dbg_hit_on(bool b) { ++hits[0]; if (b) ++hits[1]; }
@@ -55,13 +55,13 @@ void dbg_mean_of(int v) { ++means[0]; means[1] += v; }
 
 void dbg_print()
 {
-	if (hits[0])
-		cerr << "Total " << hits[0] << " Hits " << hits[1]
-		<< " hit rate (%) " << 100 * hits[1] / hits[0] << endl;
+  if (hits[0])
+    cerr << "Total " << hits[0] << " Hits " << hits[1]
+    << " hit rate (%) " << 100 * hits[1] / hits[0] << endl;
 
-	if (means[0])
-		cerr << "Total " << means[0] << " Mean "
-		<< (double)means[1] / means[0] << endl;
+  if (means[0])
+    cerr << "Total " << means[0] << " Mean "
+    << (double)means[1] / means[0] << endl;
 }
 
 // Our fancy logging facility. The trick here is to replace cin.rdbuf() and
@@ -71,68 +71,68 @@ void dbg_print()
 // Idea from http://groups.google.com/group/comp.lang.c++/msg/1d941c0f26ea0d81
 struct Tie : public streambuf
 {
-	// MSVC requires splitted streambuf for cin and cout
-	Tie(streambuf* b, ofstream* f) : buf(b), file(f) {}
-	int sync() { return file->rdbuf()->pubsync(), buf->pubsync(); }
-	int overflow(int c) { return log(buf->sputc((char)c), "<< "); }
-	int underflow() { return buf->sgetc(); }
-	int uflow() { return log(buf->sbumpc(), ">> "); }
+  // MSVC requires splitted streambuf for cin and cout
+  Tie(streambuf* b, ofstream* f) : buf(b), file(f) {}
+  int sync() { return file->rdbuf()->pubsync(), buf->pubsync(); }
+  int overflow(int c) { return log(buf->sputc((char)c), "<< "); }
+  int underflow() { return buf->sgetc(); }
+  int uflow() { return log(buf->sbumpc(), ">> "); }
 
-	streambuf* buf;
-	ofstream* file;
+  streambuf* buf;
+  ofstream* file;
 
-	int log(int c, const char* prefix)
-	{
-		static int last = '\n';
+  int log(int c, const char* prefix)
+  {
+    static int last = '\n';
 
-		if (last == '\n')
-			file->rdbuf()->sputn(prefix, 3);
+    if (last == '\n')
+      file->rdbuf()->sputn(prefix, 3);
 
-		return last = file->rdbuf()->sputc((char)c);
-	}
+    return last = file->rdbuf()->sputc((char)c);
+  }
 };
 
 class Logger
 {
-	Logger() : in(cin.rdbuf(), &file), out(cout.rdbuf(), &file) {}
-	~Logger() { start(false); }
+  Logger() : in(cin.rdbuf(), &file), out(cout.rdbuf(), &file) {}
+  ~Logger() { start(false); }
 
-	ofstream file;
-	Tie in, out;
+  ofstream file;
+  Tie in, out;
 
 public:
-	static void start(bool b)
-	{
-		static Logger l;
+  static void start(bool b)
+  {
+    static Logger l;
 
-		if (b && !l.file.is_open())
-		{
-			l.file.open("io_log.txt", ifstream::out | ifstream::app);
-			cin.rdbuf(&l.in);
-			cout.rdbuf(&l.out);
-		}
-		else if (!b && l.file.is_open())
-		{
-			cout.rdbuf(l.out.buf);
-			cin.rdbuf(l.in.buf);
-			l.file.close();
-		}
-	}
+    if (b && !l.file.is_open())
+    {
+      l.file.open("io_log.txt", ifstream::out | ifstream::app);
+      cin.rdbuf(&l.in);
+      cout.rdbuf(&l.out);
+    }
+    else if (!b && l.file.is_open())
+    {
+      cout.rdbuf(l.out.buf);
+      cin.rdbuf(l.in.buf);
+      l.file.close();
+    }
+  }
 };
 
 // Used to serialize access to std::cout to avoid multiple threads writing at
 // the same time.
 std::ostream& operator<<(std::ostream& os, SyncCout sc)
 {
-	static std::mutex m;
+  static std::mutex m;
 
-	if (sc == IO_LOCK)
-		m.lock();
+  if (sc == IO_LOCK)
+    m.lock();
 
-	if (sc == IO_UNLOCK)
-		m.unlock();
+  if (sc == IO_UNLOCK)
+    m.unlock();
 
-	return os;
+  return os;
 }
 
 // Trampoline helper to avoid moving Logger to misc.h
@@ -151,15 +151,15 @@ void prefetch(void*) {}
 void prefetch(void* addr)
 {
 #  if defined(__INTEL_COMPILER)
-	// This hack prevents prefetches from being optimized away by
-	// Intel compiler. Both MSVC and gcc seem not be affected by this.
-	__asm__("");
+  // This hack prevents prefetches from being optimized away by
+  // Intel compiler. Both MSVC and gcc seem not be affected by this.
+  __asm__("");
 #  endif
 
 #  if defined(__INTEL_COMPILER) || defined(_MSC_VER)
-	_mm_prefetch((char*)addr, _MM_HINT_T0);
+  _mm_prefetch((char*)addr, _MM_HINT_T0);
 #  else
-	__builtin_prefetch(addr);
+  __builtin_prefetch(addr);
 #  endif
 }
 

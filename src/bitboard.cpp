@@ -28,127 +28,127 @@
 
 Bitboard Bitboard::operator <<(int bit)
 {
-	if (bit < 0)
-		return *this >> -bit;
-	else if (bit <= 45)
-		return Bitboard(bb[0] << bit, bb[1] << bit | bb[0] >> (45 - bit));
-	else if (bit <= 90)
-		return Bitboard(0, bb[0] << (bit - 45));
-	else
-		return Bitboard(0, 0);
+  if (bit < 0)
+    return *this >> -bit;
+  else if (bit <= 45)
+    return Bitboard(bb[0] << bit, bb[1] << bit | bb[0] >> (45 - bit));
+  else if (bit <= 90)
+    return Bitboard(0, bb[0] << (bit - 45));
+  else
+    return Bitboard(0, 0);
 }
 
 Bitboard Bitboard::operator >>(int bit)
 {
-	if (bit < 0)
-		return *this << -bit;
-	else if (bit <= 45)
-		return Bitboard(bb[0] >> bit | bb[1] << (45 - bit), bb[1] >> bit);
-	else if (bit <= 90)
-		return Bitboard(bb[1] >> (bit - 45), 0);
-	else
-		return Bitboard(0, 0);
+  if (bit < 0)
+    return *this << -bit;
+  else if (bit <= 45)
+    return Bitboard(bb[0] >> bit | bb[1] << (45 - bit), bb[1] >> bit);
+  else if (bit <= 90)
+    return Bitboard(bb[1] >> (bit - 45), 0);
+  else
+    return Bitboard(0, 0);
 }
 
 Bitboard &Bitboard::operator <<=(int bit)
 {
-	if (bit < 0)
-	{
-		*this >>= -bit;
-	}
-	else if (bit <= 45)
-	{
-		bb[1] <<= bit;
-		bb[1] |= bb[0] >> (45 - bit);
-		bb[0] <<= bit;
+  if (bit < 0)
+  {
+    *this >>= -bit;
+  }
+  else if (bit <= 45)
+  {
+    bb[1] <<= bit;
+    bb[1] |= bb[0] >> (45 - bit);
+    bb[0] <<= bit;
 
-		bb[0] &= BIT_MASK;
-		bb[1] &= BIT_MASK;
-	}
-	else if (bit <= 90)
-	{
-		bb[1] = bb[0] << (bit - 45);
-		bb[0] = 0;
+    bb[0] &= BIT_MASK;
+    bb[1] &= BIT_MASK;
+  }
+  else if (bit <= 90)
+  {
+    bb[1] = bb[0] << (bit - 45);
+    bb[0] = 0;
 
-		bb[1] &= BIT_MASK;
-	}
-	else
-	{
-		bb[0] = 0;
-		bb[1] = 0;
-	}
-	return *this;
+    bb[1] &= BIT_MASK;
+  }
+  else
+  {
+    bb[0] = 0;
+    bb[1] = 0;
+  }
+  return *this;
 }
 
 Bitboard &Bitboard::operator >>=(int bit)
 {
-	if (bit < 0)	{
-		*this <<= -bit;
-	}
-	else if (bit <= 45)
-	{
-		bb[0] >>= bit;
-		bb[0] |= bb[1] << (45 - bit);
-		bb[1] >>= bit;
+  if (bit < 0)  {
+    *this <<= -bit;
+  }
+  else if (bit <= 45)
+  {
+    bb[0] >>= bit;
+    bb[0] |= bb[1] << (45 - bit);
+    bb[1] >>= bit;
 
-		bb[0] &= BIT_MASK;
-	}
-	else if (bit <= 90)
-	{
-		bb[0] = bb[1] >> (bit - 45);
-		bb[1] = 0;
-	}
-	else
-	{
-		bb[0] = 0;
-		bb[1] = 0;
-	}
-	return *this;
+    bb[0] &= BIT_MASK;
+  }
+  else if (bit <= 90)
+  {
+    bb[0] = bb[1] >> (bit - 45);
+    bb[1] = 0;
+  }
+  else
+  {
+    bb[0] = 0;
+    bb[1] = 0;
+  }
+  return *this;
 }
 
 void Bitboard::pop_lsb()
 {
-	if (bb[0])
-		bb[0] &= bb[0] - 1;
-	else if (bb[1])
-		bb[1] &= bb[1] - 1;
+  if (bb[0])
+    bb[0] &= bb[0] - 1;
+  else if (bb[1])
+    bb[1] &= bb[1] - 1;
 }
 
 bool Bitboard::more_than_one() const
 {
-	uint32_t c = 0;
+  uint32_t c = 0;
 
-	if (bb[0])
-	{
-		if (bb[0] & (bb[0] - 1)) return true; // > 1
-		++c;
-	}
-	if (bb[1])
-	{
-		if (c)  return true;	// > 1
-		if (bb[1] & (bb[1] - 1)) return true; // > 1
-		++c;
-	}
-	return c > 1;
+  if (bb[0])
+  {
+    if (bb[0] & (bb[0] - 1)) return true;
+    ++c;
+  }
+  if (bb[1])
+  {
+    if (c) return true;
+    if (bb[1] & (bb[1] - 1)) return true;
+    ++c;
+  }
+  return c > 1;
 }
 
 bool Bitboard::equal_to_two() const
 {
-	uint32_t c = 0;
-	uint64_t t = bb[0];
+  uint32_t c = 0;
+  uint64_t t = bb[0];
 
-	while (t)	{
-		t &= t - 1;
-		++c;
-		if (c > 2)
-			return false;
-	}
-	t = bb[1];
-	while (t)	{
-		t &= t - 1;
-		++c;
-		if (c > 2)
-			return false;
-	}
-	return c == 2;
+  while (t)  {
+    t &= t - 1;
+    ++c;
+    if (c > 2)
+      return false;
+  }
+  t = bb[1];
+  while (t)  {
+    t &= t - 1;
+    ++c;
+    if (c > 2)
+      return false;
+  }
+  return c == 2;
 }

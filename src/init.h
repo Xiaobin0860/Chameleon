@@ -29,8 +29,8 @@
 
 namespace Bitboards
 {
-	void init();
-	const std::string pretty(Bitboard b);
+  void init();
+  const std::string pretty(Bitboard b);
 }
 
 #define POW_2(x)   ( (Bitboard(1, 0)<<(x)) )
@@ -82,26 +82,22 @@ const Bitboard BlackPawnMaskBB = Rank0BB | Rank1BB | Rank2BB | Rank3BB | Rank4BB
 
 extern int SquareDistance[SQUARE_NB][SQUARE_NB];
 
-extern Bitboard CityBB[COLOR_NB];
-extern Bitboard AdvisorCityBB[COLOR_NB];
-extern Bitboard BishopCityBB[COLOR_NB];
+extern Bitboard RookAttackMask[SQUARE_NB];
+extern Bitboard RookMasks[SQUARE_NB];
+extern Bitboard CannonMasks[SQUARE_NB];
+extern Bitboard SuperCannonMasks[SQUARE_NB];
 
-extern Bitboard  RookAttackMask[SQUARE_NB];
+extern Bitboard RookMagics[SQUARE_NB];
+extern Bitboard CannonMagics[SQUARE_NB];
+extern Bitboard SuperCannonMagics[SQUARE_NB];
 
-extern Bitboard  RookMasks[SQUARE_NB];
-extern Bitboard  RookMagics[SQUARE_NB];
+extern unsigned RookShifts[SQUARE_NB];
+extern unsigned CannonShifts[SQUARE_NB];
+extern unsigned SuperCannonShifts[SQUARE_NB];
+
 extern Bitboard* RookAttacks[SQUARE_NB];
-extern unsigned  RookShifts[SQUARE_NB];
-
-extern Bitboard  CannonMasks[SQUARE_NB];
 extern Bitboard* CannonAttacks[SQUARE_NB];
-extern Bitboard  CannonMagics[SQUARE_NB];
-extern unsigned  CannonShifts[SQUARE_NB];
-
-extern Bitboard  SuperCannonMasks[SQUARE_NB];
 extern Bitboard* SuperCannonAttacks[SQUARE_NB];
-extern Bitboard  SuperCannonMagics[SQUARE_NB];
-extern unsigned  SuperCannonShifts[SQUARE_NB];
 
 extern Bitboard KnightAttackMask[SQUARE_NB];
 extern Bitboard KnightLeg[SQUARE_NB];
@@ -116,63 +112,63 @@ extern Bitboard BishopAttack[SQUARE_NB][16];
 extern uint64_t BishopEyeMagic[SQUARE_NB];
 
 extern Bitboard AdvisorAttack[SQUARE_NB];
-
 extern Bitboard KingAttack[SQUARE_NB];
-
 extern Bitboard PawnAttackTo[COLOR_NB][SQUARE_NB];
 extern Bitboard PawnAttackFrom[COLOR_NB][SQUARE_NB];
 extern Bitboard PawnMask[COLOR_NB];
 extern Bitboard PassedRiverBB[COLOR_NB];
+
+extern Bitboard CityBB[COLOR_NB];
+extern Bitboard AdvisorCityBB[COLOR_NB];
+extern Bitboard BishopCityBB[COLOR_NB];
 
 extern Bitboard SquareBB[SQUARE_NB];
 extern Bitboard FileBB[FILE_NB];
 extern Bitboard RankBB[RANK_NB];
 extern Bitboard AdjacentFilesBB[FILE_NB];
 extern Bitboard InFrontBB[COLOR_NB][RANK_NB];
-//extern Bitboard StepAttacksBB[PIECE_NB][SQUARE_NB];
 extern Bitboard BetweenBB[SQUARE_NB][SQUARE_NB];
 extern Bitboard LineBB[SQUARE_NB][SQUARE_NB];
 extern Bitboard DistanceRingBB[SQUARE_NB][8];
 extern Bitboard ForwardBB[COLOR_NB][SQUARE_NB];
 extern Bitboard PassedPawnMask[COLOR_NB][SQUARE_NB];
 extern Bitboard PawnAttackSpan[COLOR_NB][SQUARE_NB];
-// extern Bitboard PseudoAttacks[PIECE_TYPE_NB][SQUARE_NB];
 
 // Overloads of bitwise operators between a Bitboard and a Square for testing
 // whether a given bit is set in a bitboard, and for setting and clearing bits.
 inline Bitboard operator&(const Bitboard& b, Square s)
 {
-	return b & SquareBB[s];
+  return b & SquareBB[s];
 }
 
 inline Bitboard& operator&=(Bitboard& b, Square s)
 {
-	return b &= SquareBB[s];
+  return b &= SquareBB[s];
 }
 
 inline Bitboard operator|(const Bitboard& b, Square s)
 {
-	return b | SquareBB[s];
+  return b | SquareBB[s];
 }
 
 inline Bitboard& operator|=(Bitboard& b, Square s)
 {
-	return b |= SquareBB[s];
+  return b |= SquareBB[s];
 }
 
 inline Bitboard operator^(const Bitboard& b, Square s)
 {
-	return b ^ SquareBB[s];
+  return b ^ SquareBB[s];
 }
 
 inline Bitboard& operator^=(Bitboard& b, Square s)
 {
-	return b ^= SquareBB[s];
+  return b ^= SquareBB[s];
 }
 
 inline bool more_than_one(const Bitboard& b)
 {
-	return b.more_than_one();
+  return b.more_than_one();
 }
 
 /// rank_bb() and file_bb() return a bitboard representing all the squares on
@@ -180,31 +176,31 @@ inline bool more_than_one(const Bitboard& b)
 
 inline Bitboard rank_bb(Rank r)
 {
-	return RankBB[r];
+  return RankBB[r];
 }
 
 inline Bitboard rank_bb(Square s)
 {
-	return RankBB[rank_of(s)];
+  return RankBB[rank_of(s)];
 }
 
 inline Bitboard file_bb(File f)
 {
-	return FileBB[f];
+  return FileBB[f];
 }
 
 inline Bitboard file_bb(Square s)
 {
-	return FileBB[file_of(s)];
+  return FileBB[file_of(s)];
 }
 
 /// shift_bb() moves a bitboard one step along direction Delta. Mainly for pawns
 
 inline Bitboard shift_bb(Bitboard b, Square Delta)
 {
-	return Delta == DELTA_N ? b << 9 : Delta == DELTA_S ? b >> 9
-		: Delta == DELTA_W ? (b & ~FileABB) >> 1 : Delta == DELTA_E ? (b & ~FileIBB) << 1
-		: Bitboard();
+  return Delta == DELTA_N ? b << 9 : Delta == DELTA_S ? b >> 9
+    : Delta == DELTA_W ? (b & ~FileABB) >> 1 : Delta == DELTA_E ? (b & ~FileIBB) << 1
+    : Bitboard();
 }
 
 /// adjacent_files_bb() returns a bitboard representing all the squares on the
@@ -212,7 +208,7 @@ inline Bitboard shift_bb(Bitboard b, Square Delta)
 
 inline Bitboard adjacent_files_bb(File f)
 {
-	return AdjacentFilesBB[f];
+  return AdjacentFilesBB[f];
 }
 
 /// between_bb() returns a bitboard representing all the squares between the two
@@ -222,16 +218,16 @@ inline Bitboard adjacent_files_bb(File f)
 
 inline Bitboard between_bb(Square s1, Square s2)
 {
-	return BetweenBB[s1][s2];
+  return BetweenBB[s1][s2];
 }
 
 /// in_front_bb() returns a bitboard representing all the squares on all the ranks
 /// in front of the given one, from the point of view of the given color. For
-/// instance, in_front_bb(BLACK, RANK_3) will return the squares on ranks 1 and 2.
+/// instance, in_front_bb(BLACK, RANK_4) will return the squares on ranks 1 and 2.
 
 inline Bitboard in_front_bb(Color c, Rank r)
 {
-	return InFrontBB[c][r];
+  return InFrontBB[c][r];
 }
 
 /// forward_bb() returns a bitboard representing all the squares along the line
@@ -240,7 +236,7 @@ inline Bitboard in_front_bb(Color c, Rank r)
 
 inline Bitboard forward_bb(Color c, Square s)
 {
-	return ForwardBB[c][s];
+  return ForwardBB[c][s];
 }
 
 /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -250,7 +246,7 @@ inline Bitboard forward_bb(Color c, Square s)
 
 inline Bitboard pawn_attack_span(Color c, Square s)
 {
-	return PawnAttackSpan[c][s];
+  return PawnAttackSpan[c][s];
 }
 
 /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -259,7 +255,7 @@ inline Bitboard pawn_attack_span(Color c, Square s)
 
 inline Bitboard passed_pawn_mask(Color c, Square s)
 {
-	return PassedPawnMask[c][s];
+  return PassedPawnMask[c][s];
 }
 
 /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -267,27 +263,27 @@ inline Bitboard passed_pawn_mask(Color c, Square s)
 
 inline bool aligned(Square s1, Square s2, Square s3)
 {
-	return LineBB[s1][s2] & s3;
+  return LineBB[s1][s2] & s3;
 }
 
 inline bool square_same_color(Square s1, Square s2)
 {
-	return square_color(s1) == square_color(s2);
+  return square_color(s1) == square_color(s2);
 }
 
 inline bool square_in_city(Square sq)
 {
-	return CityBB[square_color(sq)] & sq;
+  return CityBB[square_color(sq)] & sq;
 }
 
 inline bool bishop_in_city(Square sq)
 {
-	return BishopCityBB[square_color(sq)] & sq;
+  return BishopCityBB[square_color(sq)] & sq;
 }
 
 inline bool advisor_in_city(Square sq)
 {
-	return AdvisorCityBB[square_color(sq)] & sq;
+  return AdvisorCityBB[square_color(sq)] & sq;
 }
 
 /// distance() functions return the distance between x and y, defined as the
@@ -300,7 +296,6 @@ template<typename T1, typename T2> inline int distance(T2 x, T2 y);
 template<> inline int distance<File>(Square x, Square y) { return distance(file_of(x), file_of(y)); }
 template<> inline int distance<Rank>(Square x, Square y) { return distance(rank_of(x), rank_of(y)); }
 
-
 /// attacks_bb() returns a bitboard representing all the squares attacked by a
 /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
 /// looks up the index using the 'magic bitboards' approach.
@@ -308,71 +303,70 @@ template<> inline int distance<Rank>(Square x, Square y) { return distance(rank_
 template<PieceType Pt>
 inline unsigned slider_magic_index(Square s, const Bitboard& occ)
 {
-	Bitboard* const Masks = Pt == ROOK ? RookMasks : Pt == CANNON ? CannonMasks : SuperCannonMasks;
-	Bitboard* const Magics = Pt == ROOK ? RookMagics : Pt == CANNON ? CannonMagics : SuperCannonMagics;
-	unsigned* const Shifts = Pt == ROOK ? RookShifts : Pt == CANNON ? CannonShifts : SuperCannonShifts;
+  Bitboard* const Masks = Pt == ROOK ? RookMasks : Pt == CANNON ? CannonMasks : SuperCannonMasks;
+  Bitboard* const Magics = Pt == ROOK ? RookMagics : Pt == CANNON ? CannonMagics : SuperCannonMagics;
+  unsigned* const Shifts = Pt == ROOK ? RookShifts : Pt == CANNON ? CannonShifts : SuperCannonShifts;
 
-	uint64_t bb[2];
-	bb[0] = occ.bb[0] & Masks[s].bb[0];
-	bb[1] = occ.bb[1] & Masks[s].bb[1];
+  uint64_t bb[2];
+  bb[0] = occ.bb[0] & Masks[s].bb[0];
+  bb[1] = occ.bb[1] & Masks[s].bb[1];
 
-	return  (((bb[0] * Magics[s].bb[0]) << 18) ^ ((bb[1] * Magics[s].bb[1])) << 18) >> Shifts[s];
+  return  (((bb[0] * Magics[s].bb[0]) << 18) ^ ((bb[1] * Magics[s].bb[1])) << 18) >> Shifts[s];
 }
 
 template<BlockType Bt>
 inline unsigned block_magic_index(Square s, const Bitboard& occ)
 {
-	Bitboard* const Masks = Bt == KNIGHT_LEG ? KnightLeg : Bt == KNIGHT_EYE ? KnightEye : BishopEye;
-	uint64_t* const Magics = Bt == KNIGHT_LEG ? KnightLegMagic : Bt == KNIGHT_EYE ? KnightEyeMagic : BishopEyeMagic;
+  Bitboard* const Masks = Bt == KNIGHT_LEG ? KnightLeg : Bt == KNIGHT_EYE ? KnightEye : BishopEye;
+  uint64_t* const Magics = Bt == KNIGHT_LEG ? KnightLegMagic : Bt == KNIGHT_EYE ? KnightEyeMagic : BishopEyeMagic;
 
-	Bitboard t = Masks[s] & occ;
-	
-	return ((t.bb[0] << 18 ^ t.bb[1] << 18)*Magics[s]) >> 60;
+  Bitboard t = Masks[s] & occ;
+  return ((t.bb[0] << 18 ^ t.bb[1] << 18) * Magics[s]) >> 60;
 }
 
 inline Bitboard rook_attacks_bb(Square s, const Bitboard& occupied)
 {
-	return RookAttacks[s][slider_magic_index<ROOK>(s, occupied)];
+  return RookAttacks[s][slider_magic_index<ROOK>(s, occupied)];
 }
 
 inline Bitboard cannon_attacks_bb(Square s, const Bitboard& occupied)
 {
-	return CannonAttacks[s][slider_magic_index<CANNON>(s, occupied)];
+  return CannonAttacks[s][slider_magic_index<CANNON>(s, occupied)];
 }
 
 inline Bitboard suppercannon_attacks_bb(Square s, const Bitboard& occupied)
 {
-	return SuperCannonAttacks[s][slider_magic_index<SUPER_CANNON>(s, occupied)];
+  return SuperCannonAttacks[s][slider_magic_index<SUPER_CANNON>(s, occupied)];
 }
 
 inline Bitboard knight_leg_attacks_bb(Square s, const Bitboard& occupied)
 {
-	return  KnightAttackFrom[s][block_magic_index<KNIGHT_LEG>(s, occupied)];
+  return  KnightAttackFrom[s][block_magic_index<KNIGHT_LEG>(s, occupied)];
 }
 
 inline Bitboard knight_eye_attacks_bb(Square s, const Bitboard& occupied)
 {
-	return  KnightAttackTo[s][block_magic_index<KNIGHT_EYE>(s, occupied)];
+  return  KnightAttackTo[s][block_magic_index<KNIGHT_EYE>(s, occupied)];
 }
 
 inline Bitboard bishop_attacks_bb(Square s, const Bitboard& occupied)
 {
-	return  BishopAttack[s][block_magic_index<BISHOP_EYE>(s, occupied)];
+  return  BishopAttack[s][block_magic_index<BISHOP_EYE>(s, occupied)];
 }
 
 inline Bitboard attacks_bb(Piece pc, Square s, const Bitboard& occupied)
 {
-	switch (type_of(pc))
-	{
-		case ROOK:	return rook_attacks_bb(s, occupied);
-		case CANNON:	return cannon_attacks_bb(s, occupied);
-		case KNIGHT:	return knight_leg_attacks_bb(s, occupied);
-		case BISHOP:	return bishop_attacks_bb(s, occupied);
-		case ADVISOR:	return AdvisorAttack[s];
-		case PAWN:	return PawnAttackFrom[color_of(pc)][s];
-		case KING:	return KingAttack[s];
-		default:	return Bitboard();
-	}
+  switch (type_of(pc))
+  {
+  case ROOK:  return rook_attacks_bb(s, occupied);
+  case CANNON:  return cannon_attacks_bb(s, occupied);
+  case KNIGHT:  return knight_leg_attacks_bb(s, occupied);
+  case BISHOP:  return bishop_attacks_bb(s, occupied);
+  case ADVISOR:  return AdvisorAttack[s];
+  case PAWN:  return PawnAttackFrom[color_of(pc)][s];
+  case KING:  return KingAttack[s];
+  default:  return Bitboard();
+  }
 }
 
 /// lsb() and msb() return the least/most significant bit in a non-zero bitboard
@@ -380,54 +374,44 @@ inline Bitboard attacks_bb(Piece pc, Square s, const Bitboard& occupied)
 
 inline Square lsb(uint64_t b)
 {
-	unsigned long idx;
+  unsigned long idx;
 
-	_BitScanForward64(&idx, b);
-	
-	return (Square)idx;
+  _BitScanForward64(&idx, b);
+  return (Square)idx;
 }
 
 inline Square lsb(Bitboard b)
 {
-	unsigned long idx;
+  unsigned long idx;
 
-	if (b.bb[0])
-	{
-		_BitScanForward64(&idx, b.bb[0]);
-	}
-	else if (b.bb[1])
-	{
-		_BitScanForward64(&idx, b.bb[1]);
-		idx += 45;
-	}
-	
-	return (Square)idx;
+  if (b.bb[0]) _BitScanForward64(&idx, b.bb[0]);
+  else if (b.bb[1])
+  {
+    _BitScanForward64(&idx, b.bb[1]);
+    idx += 45;
+  }
+  return (Square)idx;
 }
 
 inline Square msb(uint64_t b)
 {
-	unsigned long idx;
+  unsigned long idx;
 
-	_BitScanReverse64(&idx, b);
-	
-	return (Square)idx;
+  _BitScanReverse64(&idx, b);
+  return (Square)idx;
 }
 
 inline Square msb(Bitboard b)
 {
-	unsigned long idx;
+  unsigned long idx;
 
-	if (b.bb[1])
-	{
-		_BitScanReverse64(&idx, b.bb[1]);
-		idx += 45;
-	}
-	else if (b.bb[0])
-	{
-		_BitScanReverse64(&idx, b.bb[0]);
-	}
-	
-	return (Square)idx;
+  if (b.bb[1])
+  {
+    _BitScanReverse64(&idx, b.bb[1]);
+    idx += 45;
+  }
+  else if (b.bb[0])   _BitScanReverse64(&idx, b.bb[0]);
+  return (Square)idx;
 }
 
 #  elif defined(__arm__)
@@ -437,48 +421,41 @@ Square msb(Bitboard b);
 
 #  else // Assumed gcc or compatible compiler
 
-inline Square lsb(uint64_t b)
-{
-	return Square(__builtin_ctzll(b));
+inline Square lsb(uint64_t b) {
+  return Square(__builtin_ctzll(b));
 }
 
-inline Square msb(uint64_t b)
-{
-	return Square(63 ^ __builtin_clzll(b));
+inline Square msb(uint64_t b) {
+  return Square(63 ^ __builtin_clzll(b));
 }
 
-inline Square lsb(Bitboard b)
-{
-	unsigned long idx;
+inline Square lsb(Bitboard b) { // Assembly code by Heinz van Saanen
+  unsigned long idx;
 
-	if (b.bb[0]) // Assembly code by Heinz van Saanen
-	{
-		idx = __builtin_ctzll(b.bb[0]);
-	}
-	else if (b.bb[1])
-	{
-		idx = __builtin_ctzll(b.bb[1]);
-		idx += 45;
-	}
+  if (b.bb[0]) { idx = __builtin_ctzll(b.bb[0]); }
+  else if (b.bb[1])
+  {
 
-	return (Square)idx;
+    idx = __builtin_ctzll(b.bb[1]);
+    idx += 45;
+  }
+
+  return (Square)idx;
 }
 
 inline Square msb(Bitboard b)
 {
-	unsigned long idx;
+  unsigned long idx;
 
-	if (b.bb[1])
-	{
-		idx = 127 ^ __builtin_clzll(b.bb[1]);
-		idx += 45;
-	}
-	else if (b.bb[0])
-	{
-		idx = 127 ^ __builtin_clzll(b.bb[0]);
-	}
+  if (b.bb[1])
+  {
 
-	return (Square)idx;
+    idx = 127 ^ __builtin_clzll(b.bb[1]);
+    idx += 45;
+  }
+  else if (b.bb[0]) { idx = 127 ^ __builtin_clzll(b.bb[0]); }
+
+  return (Square)idx;
 }
 
 #endif
@@ -487,11 +464,9 @@ inline Square msb(Bitboard b)
 
 inline Square pop_lsb(Bitboard* b)
 {
-	const Square s = lsb(*b);
-	
-	b->pop_lsb();
-	
-	return s;
+  const Square s = lsb(*b);
+  b->pop_lsb();
+  return s;
 }
 
 /// frontmost_sq() and backmost_sq() return the square corresponding to the

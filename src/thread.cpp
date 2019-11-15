@@ -37,78 +37,78 @@ ThreadPool Threads; // Global object
 
 Thread::Thread()
 {
-	maxPly = callsCnt = 0;
-	resetCalls = exit = false;
-	history.clear();
-	counterMoves.clear();
-	idx = Threads.size(); // Start from 0
+  maxPly = callsCnt = 0;
+  resetCalls = exit = false;
+  history.clear();
+  counterMoves.clear();
+  idx = Threads.size(); // Start from 0
 
-	std::unique_lock<std::mutex> lk(mutex);
-	searching = true;
-	nativeThread = std::thread(&Thread::idle_loop, this);
-	sleepCondition.wait(lk, [&] { return !searching; });
+  std::unique_lock<std::mutex> lk(mutex);
+  searching = true;
+  nativeThread = std::thread(&Thread::idle_loop, this);
+  sleepCondition.wait(lk, [&] { return !searching; });
 }
 
 /// Thread destructor wait for thread termination before returning.
 
 Thread::~Thread()
 {
-	mutex.lock();
-	exit = true;
-	sleepCondition.notify_one();
-	mutex.unlock();
-	nativeThread.join();
+  mutex.lock();
+  exit = true;
+  sleepCondition.notify_one();
+  mutex.unlock();
+  nativeThread.join();
 }
 
 /// Thread::wait_for_search_finished() wait on sleep condition until not searching.
 
 void Thread::wait_for_search_finished()
 {
-	std::unique_lock<std::mutex> lk(mutex);
-	sleepCondition.wait(lk, [&] { return !searching; });
+  std::unique_lock<std::mutex> lk(mutex);
+  sleepCondition.wait(lk, [&] { return !searching; });
 }
 
 /// Thread::wait() wait on sleep condition until condition is true.
 
 void Thread::wait(std::atomic_bool& condition)
 {
-	std::unique_lock<std::mutex> lk(mutex);
-	sleepCondition.wait(lk, [&] { return bool(condition); });
+  std::unique_lock<std::mutex> lk(mutex);
+  sleepCondition.wait(lk, [&] { return bool(condition); });
 }
 
 /// Thread::start_searching() wake up the thread that will start the search.
 
 void Thread::start_searching(bool resume)
 {
-	std::unique_lock<std::mutex> lk(mutex);
+  std::unique_lock<std::mutex> lk(mutex);
 
-	if (!resume)
-		searching = true;
+  if (!resume)
+    searching = true;
 
-	sleepCondition.notify_one();
+  sleepCondition.notify_one();
 }
 
 /// Thread::idle_loop() is where the thread is parked when it has no work to do.
 
 void Thread::idle_loop()
 {
-	while (!exit)
-	{
-		std::unique_lock<std::mutex> lk(mutex);
+  while (!exit)
+  {
+    std::unique_lock<std::mutex> lk(mutex);
 
-		searching = false;
+    searching = false;
 
-		while (!searching && !exit)
-		{
-			sleepCondition.notify_one(); // Wake up any waiting thread
-			sleepCondition.wait(lk);
-		}
+    while (!searching && !exit)
+    {
+      sleepCondition.notify_one(); // Wake up any waiting thread
+      sleepCondition.wait(lk);
+    }
 
-		lk.unlock();
+    lk.unlock();
 
-		if (!exit)
-			search();
-	}
+    if (!exit)
+      search();
+  }
 }
 
 /// ThreadPool::init() create and launch requested threads, that will go
@@ -118,8 +118,8 @@ void Thread::idle_loop()
 
 void ThreadPool::init()
 {
-	push_back(new MainThread);
-	read_uci_options();
+  push_back(new MainThread);
+  read_uci_options();
 }
 
 /// ThreadPool::exit() terminate threads before the program exits. Cannot be
@@ -128,8 +128,8 @@ void ThreadPool::init()
 
 void ThreadPool::exit()
 {
-	while (size())
-		delete back(), pop_back();
+  while (size())
+    delete back(), pop_back();
 }
 
 /// ThreadPool::read_uci_options() updates internal threads parameters from the
@@ -138,49 +138,49 @@ void ThreadPool::exit()
 
 void ThreadPool::read_uci_options()
 {
-	size_t requested = Options["Threads"];
+  size_t requested = Options["Threads"];
 
-	assert(requested > 0);
+  assert(requested > 0);
 
-	while (size() < requested)
-		push_back(new Thread);
+  while (size() < requested)
+    push_back(new Thread);
 
-	while (size() > requested)
-		delete back(), pop_back();
+  while (size() > requested)
+    delete back(), pop_back();
 }
 
 /// ThreadPool::nodes_searched() return the number of nodes searched.
 
 int64_t ThreadPool::nodes_searched()
 {
-	int64_t nodes = 0;
-	for (Thread* th : *this)
-		nodes += th->rootPos.nodes_searched();
-	return nodes;
+  int64_t nodes = 0;
+  for (Thread* th : *this)
+    nodes += th->rootPos.nodes_searched();
+  return nodes;
 }
 
 /// ThreadPool::start_thinking() wake up the main thread sleeping in idle_loop()
 /// and start a new search, then return immediately.
 
 void ThreadPool::start_thinking(const Position& pos, const LimitsType& limits,
-	StateStackPtr& states)
+  StateStackPtr& states)
 {
-	main()->wait_for_search_finished();
-	main()->rootMoves.clear();
-	main()->rootPos = pos;
-	Limits = limits;
-	Signals.stopOnPonderhit = Signals.stop = false;
+  main()->wait_for_search_finished();
+  main()->rootMoves.clear();
+  main()->rootPos = pos;
+  Limits = limits;
+  Signals.stopOnPonderhit = Signals.stop = false;
 
-	if (states.get()) // If we don't set a new position, preserve current state
-	{
-		SetupStates = std::move(states); // Ownership transfer here
-		assert(!states.get());
-	}
+  if (states.get()) // If we don't set a new position, preserve current state
+  {
+    SetupStates = std::move(states); // Ownership transfer here
+    assert(!states.get());
+  }
 
-	for (const auto& m : MoveList<LEGAL>(pos))
-		if (limits.searchmoves.empty()
-			|| std::count(limits.searchmoves.begin(), limits.searchmoves.end(), m))
-			main()->rootMoves.push_back(RootMove(m));
+  for (const auto& m : MoveList<LEGAL>(pos))
+    if (limits.searchmoves.empty()
+      || std::count(limits.searchmoves.begin(), limits.searchmoves.end(), m))
+      main()->rootMoves.push_back(RootMove(m));
 
-	main()->start_searching();
+  main()->start_searching();
 }

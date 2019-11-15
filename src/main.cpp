@@ -32,16 +32,16 @@
 
 int main(int argc, char* argv[])
 {
-	UCI::init();
-	PSQT::init();
-	Bitboards::init();
-	Position::init();
-	Search::init();
-	Eval::init();
-	Pawns::init();
-	Threads.init();
-	TT.init();
-	UCI::loop(argc, argv);
-	Threads.exit();
-	return 0;
+  UCI::init();
+  PSQT::init();
+  Bitboards::init();
+  Position::init();
+  Search::init();
+  Eval::init();
+  Pawns::init();
+  Threads.init();
+  TT.init();
+  UCI::loop(argc, argv);
+  Threads.exit();
+  return 0;
 }

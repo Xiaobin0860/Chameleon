@@ -32,28 +32,28 @@
 class Bitboard
 {
 public:
-	Bitboard() { bb[0] = 0; bb[1] = 0; };
-	Bitboard(uint64_t low, uint64_t hig) { bb[0] = low & BIT_MASK; bb[1] = hig & BIT_MASK; };
-	operator bool() const { return bb[0] || bb[1]; };
-	bool operator == (const Bitboard& board) const { return bb[0] == board.bb[0] && bb[1] == board.bb[1]; }
-	bool operator != (const Bitboard& board) const { return bb[0] != board.bb[0] || bb[1] != board.bb[1]; }
-	Bitboard operator ~() const { return Bitboard(~bb[0], ~bb[1]); }
-	Bitboard operator &(const Bitboard& board) const { return Bitboard(bb[0] & board.bb[0], bb[1] & board.bb[1]); }
-	Bitboard operator |(const Bitboard& board) const { return Bitboard(bb[0] | board.bb[0], bb[1] | board.bb[1]); }
-	Bitboard operator ^(const Bitboard &board) const { return Bitboard(bb[0] ^ board.bb[0], bb[1] ^ board.bb[1]); }
-	Bitboard &operator &=(const Bitboard &board) { bb[0] &= board.bb[0]; bb[1] &= board.bb[1]; return *this; }
-	Bitboard &operator |=(const Bitboard &board) { bb[0] |= board.bb[0]; bb[1] |= board.bb[1]; return *this; }
-	Bitboard &operator ^=(const Bitboard &board) { bb[0] ^= board.bb[0]; bb[1] ^= board.bb[1]; return *this; }
-	Bitboard operator <<(int bit);
-	Bitboard operator >> (int bit);
-	Bitboard &operator <<=(int bit);
-	Bitboard &operator >>=(int bit);
-	void pop_lsb();
-	bool more_than_one() const;
-	bool equal_to_two() const;
+  Bitboard() { bb[0] = 0; bb[1] = 0; };
+  Bitboard(uint64_t low, uint64_t hig) { bb[0] = low & BIT_MASK; bb[1] = hig & BIT_MASK; };
+  operator bool() const { return bb[0] || bb[1]; };
+  bool operator == (const Bitboard& board) const { return bb[0] == board.bb[0] && bb[1] == board.bb[1]; }
+  bool operator != (const Bitboard& board) const { return bb[0] != board.bb[0] || bb[1] != board.bb[1]; }
+  Bitboard operator ~() const { return Bitboard(~bb[0], ~bb[1]); }
+  Bitboard operator &(const Bitboard& board) const { return Bitboard(bb[0] & board.bb[0], bb[1] & board.bb[1]); }
+  Bitboard operator |(const Bitboard& board) const { return Bitboard(bb[0] | board.bb[0], bb[1] | board.bb[1]); }
+  Bitboard operator ^(const Bitboard &board) const { return Bitboard(bb[0] ^ board.bb[0], bb[1] ^ board.bb[1]); }
+  Bitboard &operator &=(const Bitboard &board) { bb[0] &= board.bb[0]; bb[1] &= board.bb[1]; return *this; }
+  Bitboard &operator |=(const Bitboard &board) { bb[0] |= board.bb[0]; bb[1] |= board.bb[1]; return *this; }
+  Bitboard &operator ^=(const Bitboard &board) { bb[0] ^= board.bb[0]; bb[1] ^= board.bb[1]; return *this; }
+  Bitboard operator <<(int bit);
+  Bitboard operator >> (int bit);
+  Bitboard &operator <<=(int bit);
+  Bitboard &operator >>=(int bit);
+  void pop_lsb();
+  bool more_than_one() const;
+  bool equal_to_two() const;
 public:
-	uint64_t bb[2];
-	static const uint64_t BIT_MASK = 0x1FFFFFFFFFFF;
+  uint64_t bb[2];
+  static const uint64_t BIT_MASK = 0x1FFFFFFFFFFF;
 };
 
 #endif // #ifndef BITBOARD_H_INCLUDED
