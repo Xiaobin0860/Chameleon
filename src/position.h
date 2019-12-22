@@ -154,7 +154,6 @@ public:
   PieceType captured_piece_type() const;
 
   // Piece specific
-  //bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
 
   // Doing and undoing moves

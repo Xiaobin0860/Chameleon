@@ -53,7 +53,7 @@ namespace
     uint64_t PolyGlotRandoms[1351]; // 13 * 60 + 1 -> 15 * 90 + 1
     struct
     {
-      uint64_t psq[14][90];  // [piece][square]
+      uint64_t psq[14][90]; // [piece][square]
       uint64_t turn;
     } Zobrist;
   }
@@ -674,9 +674,9 @@ size_t YunBook::cb(const char *d, size_t n, size_t l, void *p)
         moves.clear();
         moves.push_back(params[1].c_str());
       }
-      else if (params[0] == "nobestmove")      continue;//moves.clear();
-      else if (params[0] == "score")        score = (Value)stoi(params[1]);
-      else if (params[0] == "depth")        depth = (Depth)stoi(params[1]);
+      else if (params[0] == "nobestmove") continue;
+      else if (params[0] == "score") score = (Value)stoi(params[1]);
+      else if (params[0] == "depth") depth = (Depth)stoi(params[1]);
     }
   }
 

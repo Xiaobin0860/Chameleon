@@ -43,8 +43,7 @@ const string engine_info(bool to_uci)
   stringstream s; // From compiler, format is "Sep 21 2008"
 
   if (to_uci)
-    s << "id name Chameleon" << "\n"
-    << "id author Wilbert Lee" << "";
+    s << "id name Chameleon" << "\n" << "id author Wilbert Lee";
 
   return s.str();
 }

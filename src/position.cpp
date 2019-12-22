@@ -65,7 +65,6 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
   if (!b)
     return min_attacker<Pt + 1>(bb, to, stmAttackers, occupied, attackers);
 
-  //occupied ^= b & ~(b - 1);
   occupied ^= lsb(b);
 
   if (Pt == PAWN)
@@ -242,7 +241,7 @@ void Position::set(const string& fenStr, bool isChess960, Thread* th)
 
   char col, row, token;
   size_t p;
-  Square sq = SQ_A9;//last rank,from left to right
+  Square sq = SQ_A9;
 
   std::istringstream ss(fenStr);
 
@@ -954,7 +953,7 @@ int Position::is_repeat()const
     if (oppcheck && !stme->checkersBB) oppcheck = false;
     if (mecheck && !stopp->checkersBB)  mecheck = false;
 
-    if (stp->key == st->key)  //repetition
+    if (stp->key == st->key)
     {
       checktime++;
 

@@ -232,7 +232,7 @@ inline Bitboard in_front_bb(Color c, Rank r)
 
 /// forward_bb() returns a bitboard representing all the squares along the line
 /// in front of the given one, from the point of view of the given color:
-///        ForwardBB[c][s] = in_front_bb(c, s) & file_bb(s)
+/// ForwardBB[c][s] = in_front_bb(c, s) & file_bb(s)
 
 inline Bitboard forward_bb(Color c, Square s)
 {
@@ -449,7 +449,6 @@ inline Square msb(Bitboard b)
 
   if (b.bb[1])
   {
-
     idx = 127 ^ __builtin_clzll(b.bb[1]);
     idx += 45;
   }

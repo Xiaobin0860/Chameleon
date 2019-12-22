@@ -86,10 +86,10 @@ namespace
   const uint64_t DeBruijn64 = 0x3F79D71B4CB0A89ULL;
   const uint32_t DeBruijn32 = 0x783A9B23;
 
-  int MSBTable[256];      // To implement software msb()
-  Square BSFTable[128];   // To implement software bitscan
+  int MSBTable[256]; // To implement software msb()
+  Square BSFTable[128]; // To implement software bitscan
 
-  Bitboard RookTable[1081344];//To store rook attacks
+  Bitboard RookTable[1081344]; // To store rook attacks
   Bitboard CannonTable[1081344];
   Bitboard SuperCannonTable[1081344];
 
@@ -371,8 +371,8 @@ void Bitboards::init()
     for (Square s = SQ_A0; s <= SQ_I9; ++s)
     {
       ForwardBB[c][s] = InFrontBB[c][rank_of(s)] & FileBB[file_of(s)];
-      PawnAttackSpan[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PawnMask[c];  //?
-      PassedPawnMask[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PassedRiverBB[c];//?
+      PawnAttackSpan[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PawnMask[c];
+      PassedPawnMask[c][s] = (InFrontBB[c][rank_of(s)] | RankBB[rank_of(s)]) & PassedRiverBB[c];
     }
   }
 
@@ -627,7 +627,6 @@ namespace
 
   void init_bishop_magics(uint64_t magicsdata[])
   {
-
     Bitboard occupancy[1 << 4], reference[1 << 4], b;
     int i, size;
 

@@ -643,7 +643,7 @@ namespace {
       thisThread->resetCalls = false;
       thisThread->callsCnt = 0;
     }
-    if (++thisThread->callsCnt > 4096)
+    if (++thisThread->callsCnt > 1024)
     {
       for (Thread* th : Threads)
         th->resetCalls = true;
