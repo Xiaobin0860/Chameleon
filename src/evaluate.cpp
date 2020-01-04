@@ -22,7 +22,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstring>   // For std::memset
+#include <cstring>  // For std::memset
 #include <iomanip>
 #include <sstream>
 
@@ -31,7 +31,6 @@
 #include "material.h"
 #include "thread.h"
 #include "pawns.h"
-
 
 namespace {
 
@@ -551,8 +550,6 @@ namespace {
     {
       Square s = pop_lsb(&b);
 
-      assert(pos.pawn_passed(Us, s));
-
       int r = relative_rank(Us, s) - RANK_2;
       int rr = r * (r - 1);
 
@@ -695,15 +692,13 @@ namespace {
       // Endings where weaker side can place his king in front of the opponent's
       // pawns are drawish.
       else if (abs(eg_value(score)) <= BishopValueEg
-        && ei.pi->pawn_span(strongSide) <= 1
-        /*&& !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide))*/)
+        && ei.pi->pawn_span(strongSide) <= 1)
         sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
     }
 
     return sf;
   }
 } // namespace
-#include "thread.h"
 
 /// evaluate() is the main evaluation function. It returns a static evaluation
 /// of the position from the point of view of the side to move.

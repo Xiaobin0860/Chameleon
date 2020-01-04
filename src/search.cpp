@@ -27,16 +27,16 @@
 #include <iostream>
 #include <sstream>
 
-#include "evaluate.h"
+#include "book.h"
 #include "misc.h"
 #include "movegen.h"
 #include "movepick.h"
+#include "evaluate.h"
 #include "search.h"
 #include "timeman.h"
 #include "thread.h"
 #include "tt.h"
 #include "uci.h"
-// #include "syzygy/tbprobe.h"
 
 namespace Search {
 
@@ -44,18 +44,6 @@ namespace Search {
   LimitsType Limits;
   StateStackPtr SetupStates;
 }
-
-namespace Tablebases {
-
-  int Cardinality;
-  uint64_t Hits;
-  bool RootInTB;
-  bool UseRule50;
-  Depth ProbeDepth;
-  Value Score;
-}
-
-namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
@@ -152,27 +140,32 @@ namespace {
 
 void Search::init() {
 
-  const double K[][2] = { { 0.799, 2.281 }, { 0.484, 3.023 } };
+  int d;  // depth (ONE_PLY == 2)
+  int hd; // half depth (ONE_PLY == 1)
+  int mc; // moveCount
 
-  for (int pv = 0; pv <= 1; ++pv)
-    for (int imp = 0; imp <= 1; ++imp)
-      for (int d = 1; d < 64; ++d)
-        for (int mc = 1; mc < 64; ++mc)
-        {
-          double r = K[pv][0] + log(d) * log(mc) / K[pv][1];
+  // Init reductions array
+  for (hd = 1; hd < 64; ++hd) for (mc = 1; mc < 64; ++mc)
+  {
+    double pvRed = 0.00 + log(double(hd)) * log(double(mc)) / 3.00;
+    double nonPVRed = 0.33 + log(double(hd)) * log(double(mc)) / 2.25;
 
-          if (r >= 1.5)
-            Reductions[pv][imp][d][mc] = int(r) * ONE_PLY;
+    Reductions[1][1][hd][mc] = (Depth)(__int8)( pvRed >= 1.0 ? pvRed * int(ONE_PLY) : 0);
+    Reductions[0][1][hd][mc] = (Depth)(__int8)(nonPVRed >= 1.0 ? nonPVRed * int(ONE_PLY) : 0);
 
-          // Increase reduction when eval is not improving
-          if (!pv && !imp && Reductions[pv][imp][d][mc] >= 2 * ONE_PLY)
-            Reductions[pv][imp][d][mc] += ONE_PLY;
-        }
+    Reductions[1][0][hd][mc] = Reductions[1][1][hd][mc];
+    Reductions[0][0][hd][mc] = Reductions[0][1][hd][mc];
+
+    if (Reductions[0][0][hd][mc] > 2 * ONE_PLY)
+      Reductions[0][0][hd][mc] += ONE_PLY;
+    else if (Reductions[0][0][hd][mc] > 1 * ONE_PLY)
+      Reductions[0][0][hd][mc] += (Depth)(__int8)(ONE_PLY / 2);
+  }
 
   for (int d = 0; d < 16; ++d)
   {
-    FutilityMoveCounts[0][d] = int(2.4 + 0.84 * pow(d, 1.86));
-    FutilityMoveCounts[1][d] = int(3.0 + 1.00 * pow(d, 2.02));
+    FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
+    FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
   }
 }
 
@@ -225,27 +218,15 @@ template uint64_t Search::perft<true>(Position&, Depth);
 /// the "bestmove" to output.
 
 void MainThread::search() {
+
+  static PolyglotBook book; // Defined static to initialize the PRNG only once
+
   Color us = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
-
-#if 0
-  TB::Hits = 0;
-  TB::RootInTB = false;
-  TB::UseRule50 = Options["Syzygy50MoveRule"];
-  TB::ProbeDepth = Options["SyzygyProbeDepth"] * ONE_PLY;
-  TB::Cardinality = Options["SyzygyProbeLimit"];
-
-  // Skip TB probing when no TB found: !TBLargest -> !TB::Cardinality
-  if (TB::Cardinality > TB::MaxCardinality)
-  {
-    TB::Cardinality = TB::MaxCardinality;
-    TB::ProbeDepth = DEPTH_ZERO;
-  }
-#endif
 
   if (rootMoves.empty())
   {
@@ -254,81 +235,32 @@ void MainThread::search() {
       << UCI::value(rootPos.checkers() ? -VALUE_MATE : VALUE_DRAW)
       << sync_endl;
   }
-  else
+
+  if (Options["Own Book"] && !Limits.infinite && !Limits.mate)
   {
-#if 0
-    if (TB::Cardinality >= rootPos.count<ALL_PIECES>(WHITE)
-      + rootPos.count<ALL_PIECES>(BLACK))
+    Move bookMove = book.probe(rootPos, Options["Book File"], Options["Best Book Move"]);
+
+    if (bookMove && std::count(rootMoves.begin(), rootMoves.end(), bookMove))
     {
-      // If the current root position is in the tablebases then RootMoves
-      // contains only moves that preserve the draw or win.
-      TB::RootInTB = Tablebases::root_probe(rootPos, rootMoves, TB::Score);
-
-      if (TB::RootInTB)
-        TB::Cardinality = 0; // Do not probe tablebases during the search
-
-      else // If DTZ tables are missing, use WDL tables as a fallback
-      {
-        // Filter out moves that do not preserve a draw or win
-        TB::RootInTB = Tablebases::root_probe_wdl(rootPos, rootMoves, TB::Score);
-
-        // Only probe during search if winning
-        if (TB::Score <= VALUE_DRAW)
-          TB::Cardinality = 0;
-      }
-
-      if (TB::RootInTB)
-      {
-        TB::Hits = rootMoves.size();
-
-        if (!TB::UseRule50)
-          TB::Score = TB::Score > VALUE_DRAW ? VALUE_MATE - MAX_PLY - 1
-          : TB::Score < VALUE_DRAW ? -VALUE_MATE + MAX_PLY + 1
-          : VALUE_DRAW;
-      }
+      std::swap(rootMoves[0], *std::find(rootMoves.begin(), rootMoves.end(), bookMove));
+      sync_cout << UCI::pv(rootPos, ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE) << sync_endl;
+      goto finalize;
     }
-
-    if (Options["Own Book"]/* && !Limits.infinite*/ && !Limits.mate)
-    {
-      Move bookMove = book.probe(rootPos, Options["Book File"], Options["Best Book Move"]);
-      std::vector<Move> ybookMove = ybook.probe_pv(rootPos, false);
-      Score yScore = ybook.probe_score(rootPos);
-
-      if (ybookMove.size() > 0 && std::count(rootMoves.begin(), rootMoves.end(), ybookMove[0]))
-      {
-        std::swap(rootMoves[0], *std::find(rootMoves.begin(), rootMoves.end(), ybookMove[0]));
-        rootMoves[0].pv.clear();
-        rootMoves[0].previousScore = rootMoves[0].score = (Value)yScore;
-
-        for (int i = 0; i < ybookMove.size(); i++)
-          rootMoves[0].pv.push_back(ybookMove[i]);
-      }
-      else if (bookMove && std::count(rootMoves.begin(), rootMoves.end(), bookMove))
-      {
-        std::swap(rootMoves[0], *std::find(rootMoves.begin(), rootMoves.end(), bookMove));
-      }
-
-      if (bookMove || ybookMove.size() > 0)
-      {
-        sync_cout << UCI::pv(rootPos, ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE) << sync_endl;
-        goto finalize;
-      }
-#endif
-
-    for (Thread* th : Threads)
-    {
-      th->maxPly = 0;
-      th->rootDepth = DEPTH_ZERO;
-      if (th != this)
-      {
-        th->rootPos = Position(rootPos, th);
-        th->rootMoves = rootMoves;
-        th->start_searching();
-      }
-    }
-
-    Thread::search(); // Let's start searching!
   }
+  
+  for (Thread* th : Threads)
+  {
+    th->maxPly = 0;
+    th->rootDepth = DEPTH_ZERO;
+    if (th != this)
+    {
+      th->rootPos = Position(rootPos, th);
+      th->rootMoves = rootMoves;
+      th->start_searching();
+    }
+  }
+
+  Thread::search(); // Let's start searching!
 
   // When playing in 'nodes as time' mode, subtract the searched nodes from
   // the available ones before to exit.
@@ -341,7 +273,7 @@ finalize:
   // the UCI protocol states that we shouldn't print the best move before the
   // GUI sends a "stop" or "ponderhit" command. We therefore simply wait here
   // until the GUI sends one of those commands (which also raises Signals.stop).
-  if (!Signals.stop && (Limits.ponder/* || Limits.infinite*/))
+  if (!Signals.stop && (Limits.ponder || Limits.infinite))
   {
     Signals.stopOnPonderhit = true;
     wait(Signals.stop);
@@ -533,8 +465,7 @@ void Thread::search() {
       if (Signals.stop)
         sync_cout << "info nodes " << Threads.nodes_searched()
         << " time " << Time.elapsed() << sync_endl;
-
-      else if ((PVIdx + 1 == multiPV || Time.elapsed() > 3000) && rootMoves[0].previousScore != rootMoves[0].score)
+      else if (PVIdx + 1 == multiPV || Time.elapsed() > 3000)
         sync_cout << UCI::pv(rootPos, rootDepth, alpha, beta) << sync_endl;
     }
 
@@ -712,44 +643,13 @@ namespace {
 
       return ttValue;
     }
-#if 0
-    // Step 4a. Tablebase probe
-    if (!RootNode && TB::Cardinality)
-    {
-      int piecesCnt = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK);
 
-      if (piecesCnt <= TB::Cardinality
-        && (piecesCnt < TB::Cardinality || depth >= TB::ProbeDepth)
-        && pos.rule50_count() == 0)
-      {
-        int found, v = Tablebases::probe_wdl(pos, &found);
-
-        if (found)
-        {
-          TB::Hits++;
-
-          int drawScore = TB::UseRule50 ? 1 : 0;
-
-          value = v < -drawScore ? -VALUE_MATE + MAX_PLY + ss->ply
-            : v >  drawScore ? VALUE_MATE - MAX_PLY - ss->ply
-            : VALUE_DRAW + 2 * v * drawScore;
-
-          tte->save(posKey, value_to_tt(value, ss->ply), BOUND_EXACT,
-            std::min(DEPTH_MAX - ONE_PLY, depth + 6 * ONE_PLY),
-            MOVE_NONE, VALUE_NONE, TT.generation());
-
-          return value;
-        }
-      }
-    }
-#endif
     // Step 5. Evaluate the position statically
     if (inCheck)
     {
       ss->staticEval = eval = VALUE_NONE;
       goto moves_loop;
     }
-
     else if (ttHit)
     {
       // Never assume anything on values stored in TT
@@ -1565,9 +1465,6 @@ string UCI::pv(const Position& pos, Depth depth, Value alpha, Value beta) {
     Depth d = updated ? depth : depth - ONE_PLY;
     Value v = updated ? rootMoves[i].score : rootMoves[i].previousScore;
 
-    bool tb = TB::RootInTB && abs(v) < VALUE_MATE - MAX_PLY;
-    v = tb ? TB::Score : v;
-
     if (ss.rdbuf()->in_avail()) // Not at first line
       ss << "\n";
 
@@ -1577,7 +1474,7 @@ string UCI::pv(const Position& pos, Depth depth, Value alpha, Value beta) {
       << " multipv " << i + 1
       << " score " << UCI::value(v);
 
-    if (!tb && i == PVIdx)
+    if (i == PVIdx)
       ss << (v >= beta ? " lowerbound" : v <= alpha ? " upperbound" : "");
 
     ss << " nodes " << nodes_searched
@@ -1586,8 +1483,7 @@ string UCI::pv(const Position& pos, Depth depth, Value alpha, Value beta) {
     if (elapsed > 1000) // Earlier makes little sense
       ss << " hashfull " << TT.hashfull();
 
-    ss << " tbhits " << TB::Hits
-      << " time " << elapsed
+    ss << " time " << elapsed
       << " pv";
 
     for (Move m : rootMoves[i].pv)

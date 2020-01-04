@@ -147,9 +147,11 @@ void UCI::loop(int argc, char* argv[])
 {
   string token, cmd;
   Position pos(StartFEN, false, Threads.main()); // The root position
-
+  
   for (int i = 1; i < argc; i++)
     cmd += std::string(argv[i]) + " ";
+
+  sync_cout << engine_info() << sync_endl;
 
   do
   {
@@ -175,12 +177,10 @@ void UCI::loop(int argc, char* argv[])
     }
     else if (token == "ponderhit")
       Search::Limits.ponder = 0; // Switch to normal search
-
     else if (token == "uci")
       sync_cout << engine_info(true)
       << Options
       << "\nuciok" << sync_endl;
-
     else if (token == "ucinewgame")
     {
       Search::clear();
@@ -194,8 +194,6 @@ void UCI::loop(int argc, char* argv[])
     // Additional custom non-UCI commands, useful for debugging
     else if (token == "flip")       pos.flip();
     else if (token == "d")          sync_cout << pos << sync_endl;
-    else
-      sync_cout << "Unknown command: " << cmd << sync_endl;
 
   } while (token != "quit" && argc == 1); // Passed args have one-shot behaviour
 

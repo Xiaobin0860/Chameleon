@@ -84,12 +84,6 @@
 
 const int MAX_PLY = 128;
 const int MAX_MOVES = 128;
-const int MAX_HASH_MB = 131072;
-const int MAX_THREAD_COUNT = 32;
-const int MIN_HASH_MB = 16;
-const int MIN_THREAD_COUNT = 1;
-const int DEFAULT_HASH_MB = 512;
-const int DEFAULT_THREAD_COUNT = 1;
 
 // A move needs 16 bits to be stored
 //
@@ -188,7 +182,7 @@ enum Depth
   DEPTH_QS_RECAPTURES = -5,
 
   DEPTH_NONE = -6,
-  DEPTH_MAX = 2 * MAX_PLY
+  DEPTH_MAX = MAX_PLY
 };
 
 enum BlockType

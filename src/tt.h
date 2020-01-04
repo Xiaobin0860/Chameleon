@@ -94,7 +94,7 @@ class TranspositionTable
 
 public:
   ~TranspositionTable() { free(mem); }
-  void init() { resize(DEFAULT_HASH_MB); };
+  void init() { resize(16); };
   void new_search() { generation8 += 4; } // Lower 2 bits are used by Bound
   uint8_t generation() const { return generation8; }
   TTEntry* probe(const uint64_t key, bool& found) const;

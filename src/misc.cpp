@@ -44,6 +44,8 @@ const string engine_info(bool to_uci)
 
   if (to_uci)
     s << "id name Chameleon" << "\n" << "id author Wilbert Lee";
+  else
+    s << "CChess" << "\n" << "Classic Edition";
 
   return s.str();
 }
