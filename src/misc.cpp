@@ -40,14 +40,20 @@ static int64_t hits[2], means[2];
 
 const string engine_info(bool to_uci)
 {
-  stringstream s; // From compiler, format is "Sep 21 2008"
+  const string months("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec");
+  string month, day, year;
+  stringstream ss, date(__DATE__); // From compiler, format is "Sep 21 2008"
+
+  date >> month >> day >> year;
 
   if (to_uci)
-    s << "id name Chameleon" << "\n" << "id author Wilbert Lee";
+	  ss << "Chameleon " << setfill('0') << setw(2) << day << setfill('0') << setw(2) << (1 + months.find(month) / 4) << year.substr(0) << " " << 16;
   else
-    s << "CChess" << "\n" << "Classic Edition";
+	  ss << "CChess";
 
-  return s.str();
+  ss << (to_uci ? "\nid author Wilbert Lee" : "\nClassic Edition");
+
+  return ss.str();
 }
 
 void dbg_hit_on(bool b) { ++hits[0]; if (b) ++hits[1]; }

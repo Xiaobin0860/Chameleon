@@ -55,7 +55,7 @@ namespace UCI
 
   void init()
   {
-    const int MaxHashMB = 131072, MaxThreads = 16;
+    const int MaxHashMB = 131072;
 
     Options["Write Debug Log"] << Option(false, on_logger);
     Options["Write Search Log"] << Option(false);
@@ -63,7 +63,7 @@ namespace UCI
     Options["Book File"] << Option("book.bin");
     Options["Best Book Move"] << Option(false);
     Options["Contempt"] << Option(0, -100, 100);
-    Options["Threads"] << Option(1, 1, MaxThreads, on_threads);
+    Options["Threads"] << Option(1, 1, 16, on_threads);
     Options["Hash"] << Option(16, 1, MaxHashMB, on_hash_size);
     Options["Clear Hash"] << Option(on_clear_hash);
     Options["Ponder"] << Option(true);

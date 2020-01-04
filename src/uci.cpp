@@ -178,9 +178,8 @@ void UCI::loop(int argc, char* argv[])
     else if (token == "ponderhit")
       Search::Limits.ponder = 0; // Switch to normal search
     else if (token == "uci")
-      sync_cout << engine_info(true)
-      << Options
-      << "\nuciok" << sync_endl;
+      sync_cout << "id name " << engine_info(true)
+      << Options << "\nuciok" << sync_endl;
     else if (token == "ucinewgame")
     {
       Search::clear();
