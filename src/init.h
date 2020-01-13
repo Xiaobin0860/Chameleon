@@ -168,7 +168,7 @@ inline Bitboard& operator^=(Bitboard& b, Square s)
 
 inline bool more_than_one(const Bitboard& b)
 {
-  return b.more_than_one();
+  return b.count() >= 1;
 }
 
 /// rank_bb() and file_bb() return a bitboard representing all the squares on

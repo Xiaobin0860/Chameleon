@@ -82,7 +82,8 @@ Bitboard &Bitboard::operator <<=(int bit)
 
 Bitboard &Bitboard::operator >>=(int bit)
 {
-  if (bit < 0)  {
+  if (bit < 0)
+  {
     *this <<= -bit;
   }
   else if (bit <= 45)
@@ -114,9 +115,9 @@ void Bitboard::pop_lsb()
     bb[1] &= bb[1] - 1;
 }
 
-bool Bitboard::more_than_one() const
+int Bitboard::count() const
 {
-  uint32_t c = 0;
+  int c = 0;
 
   if (bb[0])
   {
@@ -129,26 +130,5 @@ bool Bitboard::more_than_one() const
     if (bb[1] & (bb[1] - 1)) return true;
     ++c;
   }
-  return c > 1;
-}
-
-bool Bitboard::equal_to_two() const
-{
-  uint32_t c = 0;
-  uint64_t t = bb[0];
-
-  while (t)  {
-    t &= t - 1;
-    ++c;
-    if (c > 2)
-      return false;
-  }
-  t = bb[1];
-  while (t)  {
-    t &= t - 1;
-    ++c;
-    if (c > 2)
-      return false;
-  }
-  return c == 2;
+  return c;
 }

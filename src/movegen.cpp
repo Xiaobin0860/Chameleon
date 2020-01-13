@@ -541,7 +541,7 @@ ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList)
   while (b)
     *moveList++ = make_move(ksq, pop_lsb(&b));
 
-  if (pos.checkers().more_than_one())
+  if (pos.checkers().count() >= 1)
   {
     assert(popcount(pos.checkers()) > 1);
 

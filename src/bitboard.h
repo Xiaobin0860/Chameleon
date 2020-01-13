@@ -49,8 +49,7 @@ public:
   Bitboard &operator <<=(int bit);
   Bitboard &operator >>=(int bit);
   void pop_lsb();
-  bool more_than_one() const;
-  bool equal_to_two() const;
+  int count() const;
 public:
   uint64_t bb[2];
   static const uint64_t BIT_MASK = 0x1FFFFFFFFFFF;

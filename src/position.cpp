@@ -402,7 +402,7 @@ Bitboard Position::check_blockers(Color c, Color kingColor) const
   {
     b = between_bb(ksq, pop_lsb(&pinners)) & pieces();
 
-    if (!b.more_than_one())
+    if (b.count() != 2)
       result |= b & pieces(c);
   }
 
@@ -411,7 +411,7 @@ Bitboard Position::check_blockers(Color c, Color kingColor) const
   {
     b = between_bb(ksq, pop_lsb(&pinners)) & pieces();
 
-    if (b.equal_to_two())
+    if (b.count() == 2)
       result |= b & pieces(c);
   }
 
@@ -428,7 +428,7 @@ Bitboard Position::check_blockers(Color c, Color kingColor) const
   {
     b = between_bb(ksq, pop_lsb(&pinners)) & pieces();
 
-    if (!b.more_than_one())
+    if (b.count() != 2)
       result |= b & pieces(c);
   }
 
@@ -448,7 +448,7 @@ Bitboard Position::discovered_check_candidates() const
   {
     b = between_bb(ksq, pop_lsb(&pinners)) & pieces();
 
-    if (!b.more_than_one())
+    if (b.count() != 2)
       result |= b & pieces(us);
   }
 
@@ -457,7 +457,7 @@ Bitboard Position::discovered_check_candidates() const
   {
     b = between_bb(ksq, pop_lsb(&pinners)) & pieces();
 
-    if (b.equal_to_two())
+    if (b.count() == 2)
       result |= b & pieces(us);
   }
 
@@ -529,35 +529,7 @@ bool Position::legal(Move m, Bitboard pinned) const
 {
   assert(is_ok(m));
   assert(pinned == pinned_pieces(sideToMove));
-  return move_is_legal((*this), m);  // Ok, but a bit sollow
-#if 0
-  Color us = sideToMove;
-  Square from = from_sq(m);
-  Square to = to_sq(m);
-
-  assert(color_of(moved_piece(m)) == us);
-  assert(piece_on(square<KING>(us)) == make_piece(us, KING));
-
-  // If the moving piece is a king, check whether the destination
-  // square is attacked by the opponent. Castling moves are checked
-  // for legality during move generation.
-  if (type_of(piece_on(from)) == KING)
-  {
-    return move_is_legal((*this), m);
-  }
-
-  if (discovered_cannon_face_king() & to)
-  {
-    return move_is_legal((*this), m);
-  }
-
-  // A non-king move is legal if and only if it is not pinned or it
-  // is moving along the ray towards or away from the king.
-
-  if (!pinned || !(pinned & from))  return true;
-
   return move_is_legal((*this), m);
-#endif
 }
 
 /// Position::pseudo_legal() takes a random move and tests whether the move is
