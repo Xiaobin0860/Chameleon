@@ -1,5 +1,5 @@
 /*
-  Chameleon, a UCI chinese chess playing engine derived from Stockfish
+  Chameleon, a UCI Chinese Chess playing engine derived from Stockfish 7
   Copyright (C) 2004-2008 Tord Romstad (Glaurung author)
   Copyright (C) 2008-2015 Marco Costalba, Joona Kiiski, Tord Romstad
   Copyright (C) 2015-2017 Marco Costalba, Joona Kiiski, Gary Linscott, Tord Romstad
@@ -43,14 +43,11 @@ enum EndgameType
   KRKP,  // KR vs KP
   KRKB,  // KR vs KB
   KRKN,  // KR vs KN
-  KQKP,  // KQ vs KP
-  KQKR,  // KQ vs KR
 
   // Scaling functions
   SCALING_FUNCTIONS,
 
   KBPsK,   // KB and pawns vs K
-  KQKRPs,  // KQ vs KR and pawns
   KRPKR,   // KRP vs KR
   KRPKB,   // KRP vs KB
   KRPPKRP, // KRPP vs KRP

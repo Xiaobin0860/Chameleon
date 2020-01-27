@@ -1,5 +1,5 @@
 /*
-  Challenger, a UCI chess playing engine derived from Stockfish
+  Challenger, a UCI chess playing engine derived from Stockfish 7
 
   Copyright (C) 2013-2017 grefen
 

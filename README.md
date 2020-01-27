@@ -1,6 +1,6 @@
 ## Overview
 
-> Chameleon is a free, powerful UCI chinese chess engine derived from Stockfish. It is not a complete chess program and requires a UCI-compatible GUI (e.g. CChessGUI) in order to be used comfortably. Read the documentation for your GUI of choice for information about how to use Chameleon with it.
+> Chameleon is a free, powerful UCI Chinese Chess engine derived from [Stockfish 7](https://github.com/mcostalba/Stockfish). It is not a complete chess program and requires a UCI-compatible GUI (e.g. [Sylvan](https://github.com/EterCyber/Sylvan)) in order to be used comfortably. Read the documentation for your GUI of choice for information about how to use Chameleon with it.
 
 ## Files
 
