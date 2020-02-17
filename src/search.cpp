@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <cstring>   // For std::memset
 #include <iostream>
 #include <sstream>
@@ -150,8 +151,8 @@ void Search::init() {
     double pvRed = 0.00 + log(double(hd)) * log(double(mc)) / 3.00;
     double nonPVRed = 0.33 + log(double(hd)) * log(double(mc)) / 2.25;
 
-    Reductions[1][1][hd][mc] = (Depth)(__int8)( pvRed >= 1.0 ? pvRed * int(ONE_PLY) : 0);
-    Reductions[0][1][hd][mc] = (Depth)(__int8)(nonPVRed >= 1.0 ? nonPVRed * int(ONE_PLY) : 0);
+    Reductions[1][1][hd][mc] = (Depth)(int8_t)( pvRed >= 1.0 ? pvRed * int(ONE_PLY) : 0);
+    Reductions[0][1][hd][mc] = (Depth)(int8_t)(nonPVRed >= 1.0 ? nonPVRed * int(ONE_PLY) : 0);
 
     Reductions[1][0][hd][mc] = Reductions[1][1][hd][mc];
     Reductions[0][0][hd][mc] = Reductions[0][1][hd][mc];
@@ -159,7 +160,7 @@ void Search::init() {
     if (Reductions[0][0][hd][mc] > 2 * ONE_PLY)
       Reductions[0][0][hd][mc] += ONE_PLY;
     else if (Reductions[0][0][hd][mc] > 1 * ONE_PLY)
-      Reductions[0][0][hd][mc] += (Depth)(__int8)(ONE_PLY / 2);
+      Reductions[0][0][hd][mc] += (Depth)(int8_t)(ONE_PLY / 2);
   }
 
   for (int d = 0; d < 16; ++d)
