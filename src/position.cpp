@@ -277,8 +277,8 @@ void Position::set(const string& fenStr, bool isChess960, Thread* th)
   while ((ss >> token) && !isspace(token));
 
   // 4. En passant square. Ignore if no pawn capture is possible
-  if (((ss >> col) && (col >= 'a' && col <= 'h'))
-    && ((ss >> row) && (row == '3' || row == '6')));
+  if (((ss >> col) && (col >= 'a' && col <= 'h')) && ((ss >> row) && (row == '3' || row == '6')))
+    (void)0;
 
   // 5-6. Halfmove clock and fullmove number
   ss >> std::skipws >> st->rule50 >> gamePly;

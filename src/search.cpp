@@ -141,7 +141,7 @@ namespace {
 
 void Search::init() {
 
-  int d;  // depth (ONE_PLY == 2)
+  //int d;  // depth (ONE_PLY == 2)
   int hd; // half depth (ONE_PLY == 1)
   int mc; // moveCount
 

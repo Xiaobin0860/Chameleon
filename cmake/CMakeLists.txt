@@ -68,8 +68,9 @@ add_definitions(
 if(WIN32)
 
 SET(CMAKE_STATIC_LINKER_FLAGS "/ignore:4221")
+SET(CMAKE_EXE_LINKER_FLAGS "/STACK:268435456")
 SET(CMAKE_CXX_FLAGS_DEBUG "/std:c++17 /Zc:__cplusplus /MTd /Zi /Od /D \"DEBUG\" /D \"_DEBUG\" /WX")
-SET(CMAKE_CXX_FLAGS_RELEASE "/std:c++17 /Zc:__cplusplus /MT /O2 /D \"NDEBUG\"")
+SET(CMAKE_CXX_FLAGS_RELEASE "/std:c++17 /Zc:__cplusplus /MT /O2 /D \"NDEBUG\" /WX")
 set(_WIN32_WINNT 0x0502 CACHE STRING "Define Windows API version to use.")
 
 add_definitions(
